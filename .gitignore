@@ -1,0 +1,26 @@
+# Dépendances
+node_modules/
+
+# Build de la lib
+dist/
+
+# App Next générée par la CLI `better`
+.better/
+
+# Next
+.next/
+next-env.d.ts
+
+# Secrets
+.env
+.env*.local
+
+# Logs et caches
+npm-debug.log*
+*.tsbuildinfo
+coverage/
+
+# Système / éditeurs
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,82 @@
+{
+  "name": "@keetlab/better-next",
+  "version": "0.1.0",
+  "description": "Une DX façon Flutter pour React : composants à contrat explicite, état encapsulé, et (bientôt) state management partagé.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./next/server": {
+      "types": "./dist/next/server.d.ts",
+      "import": "./dist/next/server.js",
+      "require": "./dist/next/server.cjs"
+    },
+    "./next/client": {
+      "types": "./dist/next/client.d.ts",
+      "import": "./dist/next/client.js",
+      "require": "./dist/next/client.cjs"
+    }
+  },
+  "bin": {
+    "better": "./dist/next/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "cd src/examples && node ../next/cli.mjs dev",
+    "build:watch": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "peerDependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
+    "next": ">=14.2.0",
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "jsdom": "^25.0.1",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "keywords": [
+    "react",
+    "widgets",
+    "flutter",
+    "state-management",
+    "components"
+  ],
+  "license": "MIT",
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  }
+}
