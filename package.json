@@ -37,31 +37,54 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build",
+    "dev:native": "cd src/examples && node ../next/cli.mjs dev --native"
   },
   "peerDependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@expo/vector-icons": ">=15.0.0",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
-    "next": ">=14.2.0",
-    "react": ">=18.0.0"
+    "@react-native-community/slider": ">=5.0.0",
+    "@react-navigation/native": ">=7.0.0",
+    "@react-navigation/native-stack": ">=7.0.0",
+    "expo": ">=58.0.0",
+    "expo-image": ">=58.0.0",
+    "expo-linear-gradient": ">=58.0.0",
+    "next": ">=15.0.0",
+    "react": ">=19.0.0",
+    "react-native": ">=0.88.0",
+    "react-native-paper": ">=5.15.0",
+    "react-native-safe-area-context": ">=5.0.0",
+    "react-native-screens": ">=4.0.0"
   },
   "devDependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@expo/vector-icons": "^15.0.2",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
+    "@react-native-community/slider": "^5.2.1",
+    "@react-navigation/native": "^7.5.1",
+    "@react-navigation/native-stack": "^7.21.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.2.0",
+    "expo": "~58.0.20",
+    "expo-image": "~58.0.17",
+    "expo-linear-gradient": "~58.0.0",
     "jsdom": "^25.0.1",
-    "next": "^14.2.35",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "next": "^15.5.28",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-paper": "^5.15.3",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
@@ -75,7 +98,40 @@
   ],
   "license": "MIT",
   "peerDependenciesMeta": {
+    "@expo/vector-icons": {
+      "optional": true
+    },
+    "@react-native-community/slider": {
+      "optional": true
+    },
+    "@react-navigation/native": {
+      "optional": true
+    },
+    "@react-navigation/native-stack": {
+      "optional": true
+    },
+    "expo": {
+      "optional": true
+    },
+    "expo-image": {
+      "optional": true
+    },
+    "expo-linear-gradient": {
+      "optional": true
+    },
     "next": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "react-native-paper": {
+      "optional": true
+    },
+    "react-native-safe-area-context": {
+      "optional": true
+    },
+    "react-native-screens": {
       "optional": true
     }
   }

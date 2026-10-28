@@ -1,11 +1,10 @@
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Column,
   CrossAxisAlignment,
   EdgeInsets,
   Icon,
   IconButton,
+  Icons,
   ListTile,
   Padding,
   Provider,
@@ -33,7 +32,7 @@ export class ShopTab extends StatelessWidget {
           title: product.name,
           subtitle: formatPrice(product.price),
           trailing: IconButton({
-            icon: Icon(AddShoppingCartIcon),
+            icon: Icon(Icons.add_shopping_cart),
             tooltip: "Ajouter au panier",
             onPressed: () => cart.add(product),
           }),
@@ -75,7 +74,7 @@ export class CartTab extends StatelessWidget {
             title: product.name,
             subtitle: formatPrice(product.price),
             trailing: IconButton({
-              icon: Icon(DeleteIcon),
+              icon: Icon(Icons.delete),
               tooltip: "Retirer",
               onPressed: () => cart.removeAt(index),
             }),

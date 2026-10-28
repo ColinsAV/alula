@@ -1,6 +1,4 @@
 import type { ReactNode } from "react";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Alignment,
   AnimatedAlign,
@@ -23,6 +21,7 @@ import {
   ElevatedButton,
   Icon,
   IconButton,
+  Icons,
   Padding,
   Row,
   SizedBox,
@@ -106,13 +105,13 @@ export class AnimationsPage extends StatefulWidget {
                       scale: this.liked ? 1.6 : 1,
                       duration: slow,
                       curve: Curves.elasticOut,
-                      child: Icon(FavoriteIcon, { color: this.liked ? "#e11d48" : colors.onSurfaceVariant }),
+                      child: Icon(Icons.favorite, { color: this.liked ? "#e11d48" : colors.onSurfaceVariant }),
                     }),
                     AnimatedRotation({
                       turns: this.turns,
                       duration: slow,
                       curve: Curves.easeOutBack,
-                      child: Icon(RefreshIcon, { size: 32 }),
+                      child: Icon(Icons.refresh, { size: 32 }),
                     }),
                   ],
                 }),

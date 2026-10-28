@@ -1,5 +1,6 @@
-import { createElement, type ComponentType, type CSSProperties, type ReactElement } from "react";
+import { createElement, type CSSProperties, type ReactElement } from "react";
 import MuiDivider from "@mui/material/Divider";
+import { registeredIcon, type IconName, type WebIconComponent } from "./icons";
 import { textStyleToCss, type TextAlign, type TextStyle } from "./painting";
 
 // --- Text -------------------------------------------------------------------
@@ -47,15 +48,33 @@ export function Text(
 
 // --- Icon -------------------------------------------------------------------
 
-/** Une icône MUI : `import AddIcon from "@mui/icons-material/Add"`. */
-export type IconData = ComponentType<{ style?: CSSProperties }>;
+/**
+ * Une icône : son nom (`Icons.add`, fonctionne sur le web et sur mobile), ou
+ * un composant MUI importé directement (web uniquement).
+ */
+export type IconData = IconName | WebIconComponent;
 
-/** `Icon(AddIcon, { size: 32, color: "red" })` — icônes de `@mui/icons-material`. */
+const warned = new Set<string>();
+
+/** `Icon(Icons.add, { size: 32, color: "red" })`. */
 export function Icon(
   icon: IconData,
   { size, color }: { size?: number; color?: string } = {}
 ): ReactElement {
-  return createElement(icon, { style: { fontSize: size, color } });
+  const style = { fontSize: size, color };
+  if (typeof icon !== "string") return createElement(icon, { style });
+
+  const component = registeredIcon(icon);
+  if (component) return createElement(component, { style });
+  // Nom calculé à l'exécution (pas écrit `Icons.xxx`) : la CLI ne l'a pas vu.
+  if (process.env.NODE_ENV !== "production" && !warned.has(icon)) {
+    warned.add(icon);
+    console.warn(
+      `[better] Icône "${icon}" non enregistrée : écrivez Icons.${icon} en toutes lettres dans lib/ pour que la CLI l'inclue.`
+    );
+  }
+  // Emplacement vide de la bonne taille, pour ne pas décaler la mise en page.
+  return createElement("span", { style: { display: "inline-block", width: size ?? 24, height: size ?? 24 } });
 }
 
 // --- Divider ----------------------------------------------------------------

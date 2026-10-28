@@ -1,4 +1,3 @@
-import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   AnimatedSwitcher,
   Card,
@@ -9,6 +8,7 @@ import {
   FutureBuilder,
   Icon,
   IconButton,
+  Icons,
   Padding,
   Row,
   SizedBox,
@@ -95,7 +95,7 @@ export class QuoteCard extends StatefulWidget {
                 }),
                 loading
                   ? SizedBox({ width: 40, child: CircularProgressIndicator({ size: 24 }) })
-                  : IconButton({ icon: Icon(RefreshIcon), tooltip: "Autre citation", onPressed: () => this.reload() }),
+                  : IconButton({ icon: Icon(Icons.refresh), tooltip: "Autre citation", onPressed: () => this.reload() }),
               ],
             });
           },

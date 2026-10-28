@@ -1,11 +1,3 @@
-import CalculateIcon from "@mui/icons-material/Calculate";
-import CalculateOutlinedIcon from "@mui/icons-material/CalculateOutlined";
-import HomeIcon from "@mui/icons-material/Home";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import StorefrontIcon from "@mui/icons-material/Storefront";
-import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import {
   AppBar,
   Column,
@@ -14,16 +6,17 @@ import {
   DropdownMenuItem,
   EdgeInsets,
   Icon,
+  Icons,
   Padding,
   Provider,
   StatefulWidget,
   TabItem,
   TabPosition,
   TabScaffold,
+  type TabScaffoldProps,
   Text,
   Theme,
   ThemeModeButton,
-  type TabScaffoldProps,
 } from "../../../../index";
 import { CartModel } from "../state/CartModel";
 import { CartTab, ShopTab } from "../state/shop";
@@ -63,8 +56,8 @@ export class TabsPage extends StatefulWidget {
       tabs: [
         TabItem({
           label: "Accueil",
-          icon: Icon(HomeOutlinedIcon),
-          activeIcon: Icon(HomeIcon),
+          icon: Icon(Icons.home_outlined),
+          activeIcon: Icon(Icons.home),
           body: Padding({
             padding: EdgeInsets.all(24),
             child: Column({
@@ -88,20 +81,20 @@ export class TabsPage extends StatefulWidget {
         }),
         TabItem({
           label: "Compteur",
-          icon: Icon(CalculateOutlinedIcon),
-          activeIcon: Icon(CalculateIcon),
+          icon: Icon(Icons.calculate_outlined),
+          activeIcon: Icon(Icons.calculate),
           body: Padding({ padding: EdgeInsets.all(24), child: Counter.new() }),
         }),
         TabItem({
           label: "Boutique",
-          icon: Icon(StorefrontOutlinedIcon),
-          activeIcon: Icon(StorefrontIcon),
+          icon: Icon(Icons.storefront_outlined),
+          activeIcon: Icon(Icons.storefront),
           body: ShopTab.new(),
         }),
         TabItem({
           label: cartCount > 0 ? `Panier (${cartCount})` : "Panier",
-          icon: Icon(ShoppingCartOutlinedIcon),
-          activeIcon: Icon(ShoppingCartIcon),
+          icon: Icon(Icons.shopping_cart_outlined),
+          activeIcon: Icon(Icons.shopping_cart),
           body: CartTab.new(),
         }),
       ],

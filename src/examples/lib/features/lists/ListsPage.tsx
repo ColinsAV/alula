@@ -1,4 +1,3 @@
-import SearchIcon from "@mui/icons-material/Search";
 import {
   Alignment,
   BorderRadius,
@@ -13,6 +12,7 @@ import {
   Expanded,
   GridView,
   Icon,
+  Icons,
   InputDecoration,
   ListTile,
   ListView,
@@ -77,7 +77,7 @@ export class ListsPage extends StatefulWidget {
                       onChanged: (value) => this.setState(() => { this.search = value; }),
                       decoration: InputDecoration({
                         labelText: "Rechercher",
-                        prefixIcon: Icon(SearchIcon, { color: colors.onSurfaceVariant }),
+                        prefixIcon: Icon(Icons.search, { color: colors.onSurfaceVariant }),
                       }),
                     }),
                   }),

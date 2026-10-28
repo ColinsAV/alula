@@ -1,10 +1,4 @@
 import type { ReactNode } from "react";
-import AltRouteIcon from "@mui/icons-material/AltRoute";
-import AnimationIcon from "@mui/icons-material/Animation";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import PaletteIcon from "@mui/icons-material/Palette";
-import SearchIcon from "@mui/icons-material/Search";
-import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 import {
   AppBar,
   BoxConstraints,
@@ -18,6 +12,8 @@ import {
   Expanded,
   GridView,
   Icon,
+  type IconData,
+  Icons,
   ListView,
   NavLink,
   OutlinedButton,
@@ -32,7 +28,6 @@ import {
   ThemeModeButton,
   useNavigator,
   Wrap,
-  type IconData,
 } from "../../index";
 import { Counter } from "./features/state/Counter";
 import { CodeBlock } from "./shell/CodeBlock";
@@ -75,12 +70,12 @@ const BETTER_CODE = `class Counter extends StatefulWidget {
 }`;
 
 const FEATURES: { icon: IconData; title: string; text: string }[] = [
-  { icon: ViewQuiltIcon, title: "Widgets façon Flutter", text: "Row, Column, Container, Scaffold, Material : le même vocabulaire, en TypeScript." },
-  { icon: SearchIcon, title: "SEO", text: "Rendu serveur, métadonnées par page, sitemap, robots.txt et vraies 404." },
-  { icon: CloudDownloadIcon, title: "Données serveur", text: "static load : le contenu arrive dans le HTML, Google le voit." },
-  { icon: AltRouteIcon, title: "Navigation", text: "Une pile de pages comme Navigator, synchronisée avec l'URL." },
-  { icon: PaletteIcon, title: "Thème", text: "Clair, sombre ou système, sans flash au chargement." },
-  { icon: AnimationIcon, title: "Animations et état", text: "Widgets Animated*, ChangeNotifier et Provider." },
+  { icon: Icons.view_quilt, title: "Widgets façon Flutter", text: "Row, Column, Container, Scaffold, Material : le même vocabulaire, en TypeScript." },
+  { icon: Icons.search, title: "SEO", text: "Rendu serveur, métadonnées par page, sitemap, robots.txt et vraies 404." },
+  { icon: Icons.cloud_download, title: "Données serveur", text: "static load : le contenu arrive dans le HTML, Google le voit." },
+  { icon: Icons.alt_route, title: "Navigation", text: "Une pile de pages comme Navigator, synchronisée avec l'URL." },
+  { icon: Icons.palette, title: "Thème", text: "Clair, sombre ou système, sans flash au chargement." },
+  { icon: Icons.animation, title: "Animations et état", text: "Widgets Animated*, ChangeNotifier et Provider." },
 ];
 
 const plainLink = { color: "inherit", textDecoration: "none" } as const;

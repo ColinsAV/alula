@@ -1,9 +1,8 @@
-import RemoveIcon from "@mui/icons-material/Remove";
-import AddIcon from "@mui/icons-material/Add";
 import {
   Column,
   Icon,
   IconButton,
+  Icons,
   Row,
   StatefulWidget,
   Text,
@@ -33,9 +32,9 @@ export class Counter extends StatefulWidget<{}, { initialValue?: number }> {
         Row({
           spacing: 16,
           children: [
-            IconButton({ icon: Icon(RemoveIcon), tooltip: "Retirer 1", onPressed: () => this.add(-1) }),
+            IconButton({ icon: Icon(Icons.remove), tooltip: "Retirer 1", onPressed: () => this.add(-1) }),
             Text(count, { style: { ...theme.textTheme.displaySmall, color: theme.colorScheme.primary } }),
-            IconButton({ icon: Icon(AddIcon), tooltip: "Ajouter 1", onPressed: () => this.add(1) }),
+            IconButton({ icon: Icon(Icons.add), tooltip: "Ajouter 1", onPressed: () => this.add(1) }),
           ],
         }),
         TextButton({

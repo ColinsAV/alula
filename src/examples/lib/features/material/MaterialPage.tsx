@@ -1,11 +1,3 @@
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import SearchIcon from "@mui/icons-material/Search";
-import SendIcon from "@mui/icons-material/Send";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import WifiIcon from "@mui/icons-material/Wifi";
 import {
   Checkbox,
   CircularProgressIndicator,
@@ -18,6 +10,7 @@ import {
   FloatingActionButton,
   Icon,
   IconButton,
+  Icons,
   InputDecoration,
   LinearProgressIndicator,
   ListTile,
@@ -83,18 +76,18 @@ export class MaterialPage extends StatefulWidget {
               }),
               ElevatedButton.icon({
                 onPressed: () => this.setState(() => { this.clicks = 0; }),
-                icon: Icon(DeleteIcon),
+                icon: Icon(Icons.delete),
                 label: "Remettre à zéro",
               }),
               OutlinedButton({ onPressed: () => {}, child: "Outlined" }),
               TextButton({ onPressed: () => {}, child: "Text" }),
               ElevatedButton({ onPressed: null, child: "Désactivé" }),
               IconButton({
-                icon: Icon(AddIcon),
+                icon: Icon(Icons.add),
                 tooltip: "Ajouter 10",
                 onPressed: () => this.setState(() => { this.clicks += 10; }),
               }),
-              FloatingActionButton.extended({ onPressed: () => {}, icon: Icon(SendIcon), label: "Envoyer" }),
+              FloatingActionButton.extended({ onPressed: () => {}, icon: Icon(Icons.send), label: "Envoyer" }),
             ],
           }),
         }),
@@ -114,7 +107,7 @@ export class MaterialPage extends StatefulWidget {
                   labelText: "E-mail",
                   hintText: "vous@exemple.fr",
                   errorText: emailError,
-                  prefixIcon: Icon(SearchIcon, { color: colors.onSurfaceVariant }),
+                  prefixIcon: Icon(Icons.search, { color: colors.onSurfaceVariant }),
                 }),
               }),
               TextField({
@@ -125,7 +118,7 @@ export class MaterialPage extends StatefulWidget {
                   labelText: "Mot de passe",
                   helperText: "8 caractères minimum",
                   suffixIcon: IconButton({
-                    icon: Icon(this.showPassword ? VisibilityOffIcon : VisibilityIcon),
+                    icon: Icon(this.showPassword ? Icons.visibility_off : Icons.visibility),
                     tooltip: this.showPassword ? "Masquer" : "Afficher",
                     onPressed: () => this.setState(() => { this.showPassword = !this.showPassword; }),
                   }),
@@ -158,14 +151,14 @@ export class MaterialPage extends StatefulWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListTile({
-                leading: Icon(WifiIcon),
+                leading: Icon(Icons.wifi),
                 title: "Wi-Fi",
                 subtitle: this.wifi ? "Connecté" : "Désactivé",
                 trailing: Switch({ value: this.wifi, onChanged: (v) => this.setState(() => { this.wifi = v; }) }),
               }),
               Divider(),
               ListTile({
-                leading: Icon(NotificationsIcon),
+                leading: Icon(Icons.notifications),
                 title: "Notifications",
                 subtitle: "Oui / non / indéterminé",
                 trailing: Checkbox({

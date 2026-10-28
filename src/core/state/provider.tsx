@@ -2,6 +2,7 @@
 
 import {
   cloneElement,
+  Fragment,
   createContext,
   createElement,
   useCallback,
@@ -92,7 +93,7 @@ export function ChangeNotifierProviderView<T extends ChangeNotifier>({ create, c
 export function MultiProviderView({ providers, child }: { providers: ReactElement[]; child?: ReactNode }): ReactElement {
   return providers.reduceRight<ReactElement>(
     (inner, provider) => cloneElement(provider, { child: inner } as object),
-    createElement("div", { style: { display: "contents" } }, child)
+    createElement(Fragment, null, child)
   );
 }
 

@@ -1,24 +1,18 @@
 import { createElement, type CSSProperties, type ReactElement } from "react";
 import NextImage from "next/image";
-import { toCssSize, type Alignment, type BorderRadius, type Dimension } from "./painting";
+import {
+  alignmentToCssPosition,
+  imageSourceUrl,
+  toCssSize,
+  type Alignment,
+  type BorderRadius,
+  type BoxFit,
+  type Dimension,
+  type ImageSource,
+} from "./painting";
 
-// Images : `Image.asset` (fichiers de public/, optimisés par next/image) et
+// Images : `Image.asset` (images du projet, optimisées par next/image) et
 // `Image.network` (n'importe quelle URL, simple <img> chargée en différé).
-
-/** Comment l'image remplit sa boîte, comme `BoxFit` en Flutter. */
-export const BoxFit = {
-  /** Toute l'image visible, quitte à laisser des bandes vides. */
-  contain: "contain",
-  /** Remplit la boîte, quitte à rogner l'image. */
-  cover: "cover",
-  /** Remplit la boîte en déformant l'image. */
-  fill: "fill",
-  /** Taille d'origine, centrée, rognée si trop grande. */
-  none: "none",
-  /** Comme `none`, mais réduite (comme `contain`) si elle ne rentre pas. */
-  scaleDown: "scaleDown",
-} as const;
-export type BoxFit = (typeof BoxFit)[keyof typeof BoxFit];
 
 const fitToCss: Record<BoxFit, CSSProperties["objectFit"]> = {
   contain: "contain",
@@ -50,17 +44,18 @@ export interface AssetImageOptions extends ImageOptions {
 }
 
 function imageStyle({ width, height, fit = "scaleDown", alignment, borderRadius }: ImageOptions): CSSProperties {
-  // Alignment (-1..1) → object-position (0%..100%).
-  const percent = (v: number) => `${((v + 1) / 2) * 100}%`;
   return {
     display: "block",
     width: toCssSize(width),
     height: toCssSize(height),
     objectFit: fitToCss[fit],
-    objectPosition: alignment && `${percent(alignment.x)} ${percent(alignment.y)}`,
+    objectPosition: alignment && alignmentToCssPosition(alignment),
     borderRadius: borderRadius?.toCss(),
   };
 }
+
+/** Taille fixe en px (pas `Infinity`, qui veut dire « toute la place »). */
+const isFixed = (value: Dimension | undefined): value is number => value !== undefined && Number.isFinite(value);
 
 /** Une image. Voir `Image.asset` et `Image.network`. */
 export const Image = {
@@ -79,22 +74,43 @@ export const Image = {
   },
 
   /**
-   * Image du dossier `public/` : `Image.asset("images/hero.jpg", { width: 400, height: 300 })`.
-   * Optimisée par Next (redimensionnée, convertie en WebP/AVIF selon l'écran).
+   * Image du projet, optimisée par Next (redimensionnée, convertie en WebP/AVIF selon l'écran) :
+   * ```ts
+   * import hero from "./images/hero.jpg";
+   * Image.asset(hero, { width: Infinity })
+   * ```
+   * Importée ainsi, l'image fonctionne aussi sur mobile, et Next connaît sa
+   * taille (pas de saut à l'affichage). Un chemin dans `public/`
+   * (`"images/hero.jpg"`) marche aussi, mais seulement sur le web.
    *
-   * Avec `width` et `height` en px, l'image a cette taille. Sinon, elle
-   * remplit son parent, qui doit donc avoir une taille (Container, SizedBox, Expanded…).
+   * Taille : `width` et `height` en px, ou la taille de l'image importée
+   * (réduite proportionnellement si seule `width` ou `height` est donnée).
+   * Un chemin `public/` sans taille en px remplit son parent, qui doit donc
+   * avoir une taille (Container, SizedBox, Expanded…).
    */
-  asset(path: string, options: AssetImageOptions = {}): ReactElement {
+  asset(source: ImageSource, options: AssetImageOptions = {}): ReactElement {
     const { width, height, priority, semanticLabel } = options;
-    const src = path.startsWith("/") ? path : `/${path}`;
     const alt = semanticLabel ?? "";
     const style = imageStyle(options);
+    const sizes = isFixed(width) ? `${width}px` : "100vw";
 
-    if (typeof width === "number" && typeof height === "number") {
-      return createElement(NextImage, { src, alt, width, height, priority, style });
+    if (isFixed(width) && isFixed(height)) {
+      return createElement(NextImage, { src: imageSourceOf(source), alt, width, height, priority, style });
     }
-    // Taille inconnue : next/image remplit une boîte positionnée.
+
+    // Image importée : Next connaît ses dimensions, la hauteur suit la largeur.
+    if (typeof source === "object") {
+      return createElement(NextImage, {
+        src: source,
+        alt,
+        priority,
+        sizes,
+        placeholder: source.blurDataURL ? "blur" : "empty",
+        style: { ...style, width: style.width ?? (height === undefined ? undefined : "auto"), height: style.height ?? "auto" },
+      });
+    }
+
+    // Chemin public/ sans taille : next/image remplit une boîte positionnée.
     return createElement(
       "div",
       {
@@ -107,13 +123,18 @@ export const Image = {
         },
       },
       createElement(NextImage, {
-        src,
+        src: imageSourceOf(source),
         alt,
         fill: true,
         priority,
-        sizes: typeof width === "number" ? `${width}px` : "100vw",
+        sizes,
         style: { objectFit: style.objectFit, objectPosition: style.objectPosition },
       })
     );
   },
 };
+
+/** Source pour next/image : l'objet importé tel quel, sinon l'URL. */
+function imageSourceOf(source: ImageSource) {
+  return typeof source === "object" ? source : imageSourceUrl(source);
+}

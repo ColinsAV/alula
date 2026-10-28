@@ -8,6 +8,7 @@ import {
   CrossAxisAlignment,
   EdgeInsets,
   Expanded,
+  LinearGradient,
   MainAxisAlignment,
   Positioned,
   Row,
@@ -156,7 +157,7 @@ export class LayoutPage extends StatelessWidget {
                 width: 120,
                 height: 80,
                 decoration: BoxDecoration({
-                  backgroundImage: "linear-gradient(135deg, #6366f1, #ec4899)",
+                  gradient: LinearGradient({ colors: ["#6366f1", "#ec4899"], begin: Alignment.topLeft, end: Alignment.bottomRight }),
                   borderRadius: BorderRadius.circular(8),
                 }),
               }),
@@ -182,7 +183,7 @@ export class LayoutPage extends StatelessWidget {
                 height: 140,
                 width: Infinity,
                 decoration: BoxDecoration({
-                  backgroundImage: "linear-gradient(135deg, #6366f1, #ec4899)",
+                  gradient: LinearGradient({ colors: ["#6366f1", "#ec4899"], begin: Alignment.topLeft, end: Alignment.bottomRight }),
                   borderRadius: BorderRadius.circular(12),
                 }),
               }),

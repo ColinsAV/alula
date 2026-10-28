@@ -178,17 +178,16 @@ interface GridLayout {
   childAspectRatio?: number;
 }
 
-export interface SliverGridDelegate extends GridLayout {
-  /** Valeur CSS `grid-template-columns`. */
-  columns: string;
-}
+/** Disposition d'une grille : nombre de colonnes fixe, ou largeur maximale des cases. */
+export type SliverGridDelegate = GridLayout &
+  ({ crossAxisCount: number; maxCrossAxisExtent?: never } | { maxCrossAxisExtent: number; crossAxisCount?: never });
 
 /** Nombre de colonnes fixe. */
 export function SliverGridDelegateWithFixedCrossAxisCount({
   crossAxisCount,
   ...layout
 }: GridLayout & { crossAxisCount: number }): SliverGridDelegate {
-  return { columns: `repeat(${crossAxisCount}, minmax(0, 1fr))`, ...layout };
+  return { crossAxisCount, ...layout };
 }
 
 /**
@@ -199,17 +198,22 @@ export function SliverGridDelegateWithMaxCrossAxisExtent({
   maxCrossAxisExtent,
   ...layout
 }: GridLayout & { maxCrossAxisExtent: number }): SliverGridDelegate {
-  return {
-    columns: `repeat(auto-fill, minmax(min(${maxCrossAxisExtent}px, 100%), 1fr))`,
-    ...layout,
-  };
+  return { maxCrossAxisExtent, ...layout };
+}
+
+/** Valeur CSS `grid-template-columns` d'une disposition de grille. */
+function gridColumns(delegate: SliverGridDelegate): string {
+  return delegate.crossAxisCount !== undefined
+    ? `repeat(${delegate.crossAxisCount}, minmax(0, 1fr))`
+    : `repeat(auto-fill, minmax(min(${delegate.maxCrossAxisExtent}px, 100%), 1fr))`;
 }
 
 function grid(
-  { columns, mainAxisSpacing = 0, crossAxisSpacing = 0, childAspectRatio = 1 }: SliverGridDelegate,
+  delegate: SliverGridDelegate,
   base: ListViewBaseProps,
   children: ReactNode[]
 ): ReactElement {
+  const { mainAxisSpacing = 0, crossAxisSpacing = 0, childAspectRatio = 1 } = delegate;
   const cell: CSSProperties = { aspectRatio: String(childAspectRatio), minWidth: 0, overflow: "hidden" };
   return createElement(
     "div",
@@ -217,7 +221,7 @@ function grid(
       style: {
         ...listStyle(base),
         display: "grid",
-        gridTemplateColumns: columns,
+        gridTemplateColumns: gridColumns(delegate),
         rowGap: mainAxisSpacing,
         columnGap: crossAxisSpacing,
         alignContent: "start",

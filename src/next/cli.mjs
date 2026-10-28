@@ -23,6 +23,8 @@ const HEADER = "// GÉNÉRÉ par @keetlab/better — ne pas modifier.\n";
  * @property {number | false} [revalidate] Durée de cache des pages en secondes
  *   (régénérées au plus une fois par période). Par défaut `false` : jamais
  *   régénérées avant le prochain build.
+ * @property {{ name?: string, slug?: string, scheme?: string }} [native] App mobile
+ *   (`better dev --native`) : nom affiché, identifiant Expo, schéma des liens profonds.
  * @property {string} [library] Développement de la lib uniquement : dossier source de
  *   la lib, importé en relatif au lieu de `@keetlab/better`.
  */
@@ -118,6 +120,39 @@ function findPages() {
   return pages;
 }
 
+const requireFromRoot = createRequire(path.join(root, "package.json"));
+
+/** `arrow_back` → `ArrowBack` (même règle que iconComponentName dans la lib). */
+const iconComponentName = (name) =>
+  name
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+
+/**
+ * Les icônes utilisées dans lib/ (`Icons.xxx` écrit en toutes lettres) et
+ * leur composant MUI. Seules celles-ci sont embarquées dans le site.
+ *
+ * @returns {{ name: string, component: string }[]}
+ */
+function findIcons() {
+  const names = new Set();
+  for (const file of [entry, ...sourceFiles()]) {
+    for (const match of fs.readFileSync(file, "utf8").matchAll(/\bIcons\.(\w+)/g)) names.add(match[1]);
+  }
+  const icons = [];
+  for (const name of [...names].sort()) {
+    const component = iconComponentName(name);
+    try {
+      requireFromRoot.resolve(`@mui/icons-material/${component}`);
+      icons.push({ name, component });
+    } catch {
+      console.warn(`[better] Icône inconnue : Icons.${name} (aucun @mui/icons-material/${component})`);
+    }
+  }
+  return icons;
+}
+
 /** Lien `.better/<name>` → `<racine>/<name>`, si la source existe. */
 function linkFromRoot(name) {
   const source = path.join(root, name);
@@ -209,10 +244,25 @@ ${pages
 `
   );
 
+  // Icônes : uniquement celles écrites `Icons.xxx` dans lib/.
+  const icons = findIcons();
+  writeIfChanged(
+    path.join(clientDir, "icons.ts"),
+    `${HEADER}
+import { registerIcons } from "${libRootImport(clientDir)}";
+${icons.map((icon) => `import ${icon.component} from "@mui/icons-material/${icon.component}";`).join("\n")}
+
+registerIcons({
+${icons.map((icon) => `  ${icon.name}: ${icon.component},`).join("\n")}
+});
+`
+  );
+
   writeIfChanged(
     path.join(clientDir, "client.tsx"),
     `"use client";
 ${HEADER}
+import "./icons";
 import { cloneElement } from "react";
 import app from "${relativeImport(clientDir, entry)}";
 import { routes } from "./routes.client";
@@ -269,22 +319,111 @@ export default createRobots(app);
   }
 }
 
-const [command = "dev", ...args] = process.argv.slice(2);
-if (!["dev", "build", "start"].includes(command)) {
-  console.error(`[better] Commande inconnue : ${command} (dev | build | start)`);
-  process.exit(1);
+// --- Mobile (React Native / Expo) --------------------------------------------
+
+const nativeDir = path.join(root, ".better-native");
+
+/**
+ * Génère l'app Expo dans .better-native/ : même lib/, mêmes pages, rendues
+ * par les fichiers `.native.tsx` de la lib (React Native).
+ */
+function generateNative() {
+  const expoPackage = requireFromRoot.resolve("expo/package.json");
+  // Dossier qui contient node_modules/expo : Metro doit pouvoir y lire.
+  const workspace = path.dirname(path.dirname(path.dirname(expoPackage)));
+  const expoVersion = JSON.parse(fs.readFileSync(expoPackage, "utf8")).version;
+  const title = path.basename(root);
+
+  writeIfChanged(
+    path.join(nativeDir, "package.json"),
+    JSON.stringify(
+      { name: "better-native-app", private: true, main: "index.ts", dependencies: { expo: expoVersion } },
+      null,
+      2
+    ) + "\n"
+  );
+
+  writeIfChanged(
+    path.join(nativeDir, "app.json"),
+    JSON.stringify(
+      {
+        expo: {
+          name: config.native?.name ?? title,
+          slug: config.native?.slug ?? title,
+          scheme: config.native?.scheme ?? "better",
+          // Suit le réglage clair / sombre de l'appareil.
+          userInterfaceStyle: "automatic",
+          newArchEnabled: true,
+          platforms: ["ios", "android"],
+        },
+      },
+      null,
+      2
+    ) + "\n"
+  );
+
+  const watchFolders = [root, workspace, ...(library ? [library] : [])];
+  writeIfChanged(
+    path.join(nativeDir, "metro.config.js"),
+    `${HEADER}
+const { getDefaultConfig } = require("expo/metro-config");
+
+const config = getDefaultConfig(__dirname);
+// Le code de l'app (lib/) et node_modules sont hors de .better-native/.
+config.watchFolders = [...new Set([...(config.watchFolders ?? []), ${watchFolders.map((f) => JSON.stringify(f)).join(", ")}])];
+config.resolver.nodeModulesPaths = [${JSON.stringify(path.join(workspace, "node_modules"))}];
+
+module.exports = config;
+`
+  );
+
+  writeIfChanged(
+    path.join(nativeDir, "babel.config.js"),
+    `${HEADER}
+module.exports = function (api) {
+  api.cache(true);
+  return { presets: ["babel-preset-expo"] };
+};
+`
+  );
+
+  // Toutes les pages, importées directement (pas de chargement à la demande sur mobile).
+  const pages = findPages();
+  writeIfChanged(
+    path.join(nativeDir, "routes.ts"),
+    `${HEADER}
+import { routesFromPages } from "${libRootImport(nativeDir)}";
+${pages.map((p, i) => `import { ${p.name} as Page${i} } from "${relativeImport(nativeDir, p.file)}";`).join("\n")}
+
+export const routes = routesFromPages([${pages.map((_, i) => `Page${i}`).join(", ")}]);
+`
+  );
+
+  writeIfChanged(
+    path.join(nativeDir, "index.ts"),
+    `${HEADER}
+import { registerRootComponent } from "expo";
+import { cloneElement } from "react";
+import app from "${relativeImport(nativeDir, entry)}";
+import { routes } from "./routes";
+
+function Root() {
+  return cloneElement(app, { routeTable: routes });
 }
 
-if (command !== "start") generate();
+registerRootComponent(Root);
+`
+  );
+}
 
-// En dev : régénère quand une page est ajoutée ou qu'une route change.
-if (command === "dev") {
+/** Régénère à chaque modification de lib/ (pages ajoutées, routes, icônes…). */
+function watch(regenerate) {
   let timer;
   fs.watch(libDir, { recursive: true }, () => {
     clearTimeout(timer);
     timer = setTimeout(() => {
       try {
-        generate();
+        regenerate();
       } catch (error) {
         console.error("[better] Génération impossible :", error);
       }
@@ -292,6 +431,33 @@ if (command === "dev") {
   });
 }
 
-const nextBin = createRequire(path.join(root, "package.json")).resolve("next/dist/bin/next");
-const child = spawn(process.execPath, [nextBin, command, outDir, ...args], { stdio: "inherit" });
-child.on("exit", (code) => process.exit(code ?? 0));
+// --- Commandes ----------------------------------------------------------------
+
+const [command = "dev", ...rawArgs] = process.argv.slice(2);
+const native = rawArgs.includes("--native");
+const args = rawArgs.filter((arg) => arg !== "--native");
+
+if (!["dev", "build", "start"].includes(command)) {
+  console.error(`[better] Commande inconnue : ${command} (dev | build | start) [--native]`);
+  process.exit(1);
+}
+
+if (native) {
+  if (command !== "dev") {
+    console.error("[better] Sur mobile, seule `better dev --native` existe pour l'instant (build : bientôt, via EAS).");
+    process.exit(1);
+  }
+  generateNative();
+  watch(generateNative);
+  // Expo : QR code à scanner avec l'app Expo Go, ou simulateur (touches i / a).
+  const expoBin = requireFromRoot.resolve("expo/bin/cli");
+  const child = spawn(process.execPath, [expoBin, "start", ...args], { stdio: "inherit", cwd: nativeDir });
+  child.on("exit", (code) => process.exit(code ?? 0));
+} else {
+  if (command !== "start") generate();
+  if (command === "dev") watch(generate);
+
+  const nextBin = requireFromRoot.resolve("next/dist/bin/next");
+  const child = spawn(process.execPath, [nextBin, command, outDir, ...args], { stdio: "inherit" });
+  child.on("exit", (code) => process.exit(code ?? 0));
+}

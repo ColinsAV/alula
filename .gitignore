@@ -4,8 +4,10 @@ node_modules/
 # Build de la lib
 dist/
 
-# App Next générée par la CLI `better`
+# Apps générées par la CLI `better` (web : Next, mobile : Expo)
 .better/
+.better-native/
+.expo/
 
 # Next
 .next/

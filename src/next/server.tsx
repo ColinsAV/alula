@@ -1,5 +1,4 @@
-import * as React from "react";
-import type { ComponentType, ReactNode } from "react";
+import { cache, type ComponentType, type ReactNode } from "react";
 import type { Metadata, MetadataRoute } from "next";
 import { notFound } from "next/navigation";
 import { loadPageData, routesFromPages, type PageClass } from "../core/navigation/pageRoutes";
@@ -12,15 +11,11 @@ import { StyleRegistry } from "./client";
 // Côté serveur : ils lisent les props du <MaterialApp> et les pages du
 // manifeste généré (.better/routes.server.ts, imports non lazy).
 
-type CatchAllProps = { params: { path?: string[] } };
+type PathParams = { path?: string[] };
+// Next 15 : les paramètres de la route arrivent sous forme de promesse.
+type CatchAllProps = { params: Promise<PathParams> };
 
-const toPath = (params: CatchAllProps["params"]) => "/" + (params.path ?? []).join("/");
-
-// `cache` de React : un seul appel à `load` par requête, partagé entre
-// generateMetadata et la page. (Absent des types de React 18, présent dans
-// la version de React embarquée par Next.)
-const cache: <F extends (...args: any[]) => any>(fn: F) => F =
-  (React as { cache?: <F>(fn: F) => F }).cache ?? ((fn) => fn);
+const toPath = (params: PathParams) => "/" + (params.path ?? []).join("/");
 
 /** Données d'une page pour la Server Action générée : sans la classe, non sérialisable. */
 export async function loadRouteData(pages: PageClass[], path: string) {
@@ -73,16 +68,18 @@ export function createPage(
   Client: ComponentType<{ initialPath: string; initialData?: unknown }>
 ) {
   const routes = routesFromPages(pages);
+  // `cache` de React : un seul appel à `load` par requête, partagé entre
+  // generateMetadata et la page.
   const load = cache((path: string) => loadPageData(pages, path));
 
   // Pré-rendues au build. Les autres URLs valides (/greeting/Alice…) sont
   // rendues à la première visite puis mises en cache (dynamicParams par défaut).
-  function generateStaticParams(): CatchAllProps["params"][] {
+  function generateStaticParams(): PathParams[] {
     return knownPaths(app, routes).map((path) => ({ path: path.split("/").filter(Boolean) }));
   }
 
   async function generateMetadata({ params }: CatchAllProps): Promise<Metadata> {
-    const path = toPath(params);
+    const path = toPath(await params);
     const result = await load(path);
     if (!result.found) return {}; // 404 : pas d'URL canonique
 
@@ -116,7 +113,7 @@ export function createPage(
   }
 
   async function Page({ params }: CatchAllProps) {
-    const path = toPath(params);
+    const path = toPath(await params);
     // Vraie 404 pour les moteurs de recherche : aucune route, ou `load` n'a rien trouvé.
     const result = await load(path);
     if (!result.found) notFound();

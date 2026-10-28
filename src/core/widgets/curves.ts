@@ -6,8 +6,10 @@ export function Duration({ seconds = 0, milliseconds = 0 }: { seconds?: number; 
 }
 
 /**
- * Une courbe d'accélération : `transform` pour les animations en JS, `css`
- * pour les transitions CSS.
+ * Une courbe d'accélération, décrite par des valeurs : `transform` (la
+ * fonction) et, si c'est une courbe de Bézier, ses points de contrôle.
+ * Chaque plateforme en tire son format : `css` pour le web, et plus tard
+ * `Easing.bezier(...)` pour React Native.
  */
 export class Curve {
   private _css?: string;
@@ -15,9 +17,11 @@ export class Curve {
   constructor(
     /** Progression de l'animation (0 → 1) → progression de la valeur. */
     readonly transform: (t: number) => number,
+    /** Points de contrôle `(x1, y1, x2, y2)`, si c'est une courbe de Bézier cubique. */
+    readonly bezier?: readonly [number, number, number, number],
     css?: string
   ) {
-    this._css = css;
+    this._css = css ?? (bezier && `cubic-bezier(${bezier.join(", ")})`);
   }
 
   /** Valeur CSS (`transition-timing-function`, `easing`). */
@@ -63,7 +67,7 @@ function cubic(x1: number, y1: number, x2: number, y2: number): Curve {
     return y(t);
   };
 
-  return new Curve(transform, `cubic-bezier(${x1}, ${y1}, ${x2}, ${y2})`);
+  return new Curve(transform, [x1, y1, x2, y2]);
 }
 
 function bounce(t: number): number {
@@ -76,7 +80,7 @@ function bounce(t: number): number {
 const ELASTIC_PERIOD = 0.4;
 
 export const Curves = {
-  linear: new Curve((t) => t, "linear"),
+  linear: new Curve((t) => t, undefined, "linear"),
   ease: cubic(0.25, 0.1, 0.25, 1),
   easeIn: cubic(0.42, 0, 1, 1),
   easeOut: cubic(0, 0, 0.58, 1),
