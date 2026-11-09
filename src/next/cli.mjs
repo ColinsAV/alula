@@ -2,7 +2,8 @@
 // CLI de @keetlab/better — volontairement en JS pur (aucun import relatif)
 // pour être exécutée telle quelle, sans compilation.
 //
-//   better dev | build | start [...options next]
+//   better dev | build | start [--native] [...options next / expo]
+//   better create <dossier> [--native | --web]
 //
 // Génère le projet Next dans .better/ (comme .dart_tool/ en Flutter) à partir
 // de lib/main.tsx, puis lance `next <commande> .better`.
@@ -13,6 +14,147 @@ import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 
 const HEADER = "// GÉNÉRÉ par @keetlab/better — ne pas modifier.\n";
+
+// --- better create -----------------------------------------------------------
+// Avant tout le reste : il n'y a pas encore de projet (ni lib/main.tsx).
+
+if (process.argv[2] === "create") {
+  await create(process.argv.slice(3));
+  process.exit(0);
+}
+
+/**
+ * `better create <dossier> [--native | --web] [--from <spec>] [--no-install] [--no-git]`
+ *
+ * Crée un projet à partir de template/ (comme `flutter create`). `--from`
+ * remplace la version de la lib dans les dépendances (fichier .tgz, `github:…`)
+ * pour tester avant publication.
+ */
+async function create(argv) {
+  const { createInterface } = await import("node:readline/promises");
+  const { execSync } = await import("node:child_process");
+  const { fileURLToPath } = await import("node:url");
+
+  const flag = (name) => argv.includes(name);
+  const option = (name) => {
+    const index = argv.indexOf(name);
+    return index === -1 ? undefined : argv[index + 1];
+  };
+  const from = option("--from");
+  const positional = argv.filter((arg, i) => !arg.startsWith("--") && argv[i - 1] !== "--from");
+
+  const ask = async (question) => {
+    if (!process.stdin.isTTY) return "";
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const answer = await rl.question(question);
+    rl.close();
+    return answer.trim();
+  };
+
+  const dirName = positional[0] || (await ask("Nom du projet : ")) || "mon-app";
+  const target = path.resolve(dirName);
+  if (fs.existsSync(target) && fs.readdirSync(target).length > 0) {
+    console.error(`[better] Le dossier ${target} existe déjà et n'est pas vide.`);
+    process.exit(1);
+  }
+  const native = flag("--native") || (!flag("--web") && !/^n/i.test(await ask("Ajouter l'app mobile (Expo) ? (O/n) ")));
+
+  const title = path.basename(target);
+  const slug = title.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "") || "app";
+
+  // template/ et package.json sont à la racine du paquet (cli.mjs est dans src/next/ ou dist/next/).
+  const packageRoot = new URL("../../", import.meta.url);
+  const templateDir = new URL("template/", packageRoot);
+  const self = JSON.parse(fs.readFileSync(new URL("package.json", packageRoot), "utf8"));
+
+  const copy = (from, to) => {
+    fs.mkdirSync(to, { recursive: true });
+    for (const dirent of fs.readdirSync(from, { withFileTypes: true })) {
+      const source = path.join(from, dirent.name);
+      // npm ne publie pas les .gitignore : le modèle le nomme `gitignore`.
+      const dest = path.join(to, dirent.name === "gitignore" ? ".gitignore" : dirent.name);
+      if (dirent.isDirectory()) copy(source, dest);
+      else fs.writeFileSync(dest, fs.readFileSync(source, "utf8").replaceAll("{{title}}", title));
+    }
+  };
+  copy(fileURLToPath(templateDir), target);
+
+  // Mêmes versions que celles avec lesquelles la lib est développée.
+  const version = (name) => self.devDependencies[name];
+  const pick = (names) => Object.fromEntries(names.map((name) => [name, version(name)]));
+  const web = ["react", "react-dom", "next", "@mui/material", "@mui/icons-material", "@emotion/react", "@emotion/styled", "@emotion/cache"];
+  const mobile = [
+    "expo",
+    "react-native",
+    "expo-image",
+    "expo-linear-gradient",
+    "@expo/vector-icons",
+    "react-native-paper",
+    "@react-native-community/slider",
+    "@react-navigation/native",
+    "@react-navigation/native-stack",
+    "react-native-safe-area-context",
+    "react-native-screens",
+  ];
+
+  const pkg = {
+    name: slug,
+    version: "0.1.0",
+    private: true,
+    type: "module",
+    scripts: {
+      dev: "better dev",
+      ...(native && { "dev:native": "better dev --native" }),
+      build: "better build",
+      start: "better start",
+      typecheck: "tsc --noEmit",
+    },
+    dependencies: {
+      [self.name]: from ?? `^${self.version}`,
+      ...pick(web),
+      ...(native && pick(mobile)),
+    },
+    devDependencies: {
+      typescript: version("typescript"),
+      "@types/react": version("@types/react"),
+      "@types/react-dom": version("@types/react-dom"),
+      "@types/node": "^22.0.0",
+    },
+  };
+  fs.writeFileSync(path.join(target, "package.json"), JSON.stringify(pkg, null, 2) + "\n");
+
+  fs.writeFileSync(
+    path.join(target, "better.config.mjs"),
+    `// Config de better (facultative) : point d'entrée, config Next, cache des pages…
+export default {
+${native ? `  native: { name: ${JSON.stringify(title)}, slug: ${JSON.stringify(slug)}, scheme: ${JSON.stringify(slug)} },\n` : ""}};
+`
+  );
+
+  const agent = process.env.npm_config_user_agent ?? "";
+  const pm = ["pnpm", "yarn", "bun"].find((name) => agent.startsWith(name)) ?? "npm";
+  const run = (command) => execSync(command, { cwd: target, stdio: "inherit" });
+
+  if (!flag("--no-install")) {
+    console.log(`\n[better] Installation des dépendances (${pm} install)…\n`);
+    run(`${pm} install`);
+  }
+  if (!flag("--no-git")) {
+    try {
+      run("git init -q");
+    } catch {
+      console.warn("[better] git introuvable : dépôt non initialisé.");
+    }
+  }
+
+  const runScript = pm === "npm" ? "npm run" : pm;
+  console.log(`
+[better] Projet créé dans ${target}
+
+  cd ${path.relative(process.cwd(), target) || "."}
+  ${runScript} dev${native ? `           # site web\n  ${runScript} dev:native    # app mobile (Expo Go)` : ""}
+`);
+}
 
 /**
  * Config facultative : `better.config.mjs` à la racine du projet.
@@ -438,7 +580,7 @@ const native = rawArgs.includes("--native");
 const args = rawArgs.filter((arg) => arg !== "--native");
 
 if (!["dev", "build", "start"].includes(command)) {
-  console.error(`[better] Commande inconnue : ${command} (dev | build | start) [--native]`);
+  console.error(`[better] Commande inconnue : ${command} (create | dev | build | start) [--native]`);
   process.exit(1);
 }
 

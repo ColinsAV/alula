@@ -36,7 +36,10 @@ export type NavLinkProps<T extends string | PageClass> = Omit<
  * ```
  */
 export function NavLink<T extends string | PageClass>(props: NavLinkProps<T>) {
-  const { to, params, onClick, onMouseEnter, onFocus, ...anchorProps } = props as NavLinkProps<string> & {
+  const { to, params, onClick, onMouseEnter, onFocus, ...anchorProps } = props as Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    "href"
+  > & {
     to: string | PageClass;
     params?: Record<string, string>;
   };

@@ -111,11 +111,13 @@ function ModalView({ modal }: { modal: ModalEntry }) {
   const onDismiss = () => modal.close();
 
   if (modal.kind === "dialog") {
-    return createElement(
-      PaperDialog,
-      { visible: modal.open, onDismiss, dismissable: modal.dismissible, style: { backgroundColor: colors.surface } },
-      modal.content
-    );
+    return createElement(PaperDialog, {
+      visible: modal.open,
+      onDismiss,
+      dismissable: modal.dismissible,
+      style: { backgroundColor: colors.surface },
+      children: modal.content,
+    });
   }
   return createElement(
     Modal,
@@ -132,8 +134,8 @@ function ModalView({ modal }: { modal: ModalEntry }) {
         paddingBottom: insets.bottom,
         maxHeight: "90%",
       },
-    },
-    textChild(modal.content)
+      children: textChild(modal.content),
+    }
   );
 }
 
@@ -159,7 +161,7 @@ function SnackView({ snack }: { snack: SnackEntry }) {
           hideSnackBar(snack.id);
         },
       },
-    },
-    textChild(content)
+      children: textChild(content),
+    }
   );
 }

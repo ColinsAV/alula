@@ -27,7 +27,8 @@
     "better": "./dist/next/cli.mjs"
   },
   "files": [
-    "dist"
+    "dist",
+    "template"
   ],
   "sideEffects": false,
   "scripts": {
@@ -134,5 +135,8 @@
     "react-native-screens": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "@keetlab/better": "file:keetlab-better-0.1.0.tgz"
   }
 }

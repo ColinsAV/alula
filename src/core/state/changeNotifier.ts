@@ -119,7 +119,7 @@ export interface ChangeNotifierProviderProps<T extends ChangeNotifier> {
 export function ChangeNotifierProvider<T extends ChangeNotifier>(
   props: ChangeNotifierProviderProps<T>
 ): ReactElement<ChangeNotifierProviderProps<T>> {
-  return createElement(ChangeNotifierProviderView, props);
+  return createElement(ChangeNotifierProviderView, props) as ReactElement<ChangeNotifierProviderProps<T>>;
 }
 
 /** Plusieurs providers d'un coup, imbriqués dans l'ordre (le premier tout en haut). */

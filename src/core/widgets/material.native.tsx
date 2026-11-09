@@ -203,7 +203,11 @@ function TextFieldView({
       right: adornment(decoration.suffixIcon),
     }),
     helper !== undefined &&
-      createElement(PaperHelperText, { type: decoration.errorText !== undefined ? "error" : "info", visible: true }, helper)
+      createElement(PaperHelperText, {
+        type: decoration.errorText !== undefined ? "error" : "info",
+        visible: true,
+        children: helper,
+      })
   );
 }
 
@@ -261,10 +265,12 @@ function DropdownButtonView<T>({ value, items, onChanged, hint, labelText, isExp
     Icon("arrow_drop_down")
   );
 
-  return createElement(
-    PaperMenu,
-    { visible: open, onDismiss: () => setOpen(false), anchor, anchorPosition: "bottom" },
-    ...items.map((item, index) =>
+  return createElement(PaperMenu, {
+    visible: open,
+    onDismiss: () => setOpen(false),
+    anchor,
+    anchorPosition: "bottom",
+    children: items.map((item, index) =>
       createElement(PaperMenu.Item, {
         key: index,
         title: textChild(item.child),
@@ -274,6 +280,6 @@ function DropdownButtonView<T>({ value, items, onChanged, hint, labelText, isExp
           onChanged?.(item.value);
         },
       })
-    )
-  );
+    ),
+  });
 }

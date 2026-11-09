@@ -1,0 +1,15 @@
+# Dépendances
+node_modules/
+
+# Apps générées par better (web : Next, mobile : Expo)
+.better/
+.better-native/
+.expo/
+
+# Secrets
+.env
+.env*.local
+
+# Système
+.DS_Store
+*.tsbuildinfo

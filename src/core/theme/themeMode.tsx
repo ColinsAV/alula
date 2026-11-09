@@ -28,7 +28,7 @@ export function useThemeMode(): ThemeModeHandle {
   const themeMode = mode ?? "system";
   return {
     themeMode,
-    brightness: themeMode === "system" ? systemMode : mode,
+    brightness: themeMode === "system" ? systemMode : themeMode,
     setThemeMode: setMode,
   };
 }

@@ -1,4 +1,5 @@
 import { createElement, type ReactElement } from "react";
+import type { ImageStyle } from "react-native";
 import { Image as ExpoImage } from "expo-image";
 import { nativeSize, radiusStyle } from "./nativeStyle";
 import type { Alignment, BorderRadius, BoxFit, Dimension, ImageSource } from "./painting";
@@ -35,7 +36,7 @@ function image(source: object | number, options: ImageOptions): ReactElement {
     contentPosition: alignment && { left: `${((alignment.x + 1) / 2) * 100}%`, top: `${((alignment.y + 1) / 2) * 100}%` },
     accessibilityLabel: semanticLabel,
     accessible: semanticLabel !== undefined,
-    style: { width: nativeSize(width), height: nativeSize(height), ...radiusStyle(borderRadius) },
+    style: { width: nativeSize(width), height: nativeSize(height), ...radiusStyle(borderRadius) } as ImageStyle,
   });
 }
 
