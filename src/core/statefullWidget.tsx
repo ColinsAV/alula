@@ -31,7 +31,8 @@ export abstract class StatefulWidget<State extends object = {}, Props extends ob
   }
 
   // À implémenter par l'utilisateur
-  abstract initState():any;
+  /** Appelé une fois à la création, props disponibles. Facultatif, comme en Flutter. */
+  initState(): void {}
   abstract build(): ReactNode;
   dispose?(): void;
 

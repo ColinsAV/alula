@@ -303,6 +303,14 @@ function linkFromRoot(name) {
   fs.symlinkSync(path.relative(outDir, source), link);
 }
 
+/** Dossier commun à la racine du projet et, en développement de la lib, à son source. */
+function tracingRoot() {
+  if (!library) return root;
+  let dir = root;
+  while (path.relative(dir, library).startsWith("..")) dir = path.dirname(dir);
+  return dir;
+}
+
 function generate() {
   const appDir = path.join(outDir, "app");
   const catchAllDir = path.join(appDir, "[[...path]]");
@@ -316,6 +324,9 @@ ${fs.existsSync(configFile) ? `import config from "${relativeImport(outDir, conf
 const next = config.next ?? {};
 
 export default {
+  // Racine du projet : sans elle, Next la devine d'après les lockfiles trouvés
+  // plus haut (un package-lock.json oublié dans le dossier personnel…).
+  outputFileTracingRoot: ${JSON.stringify(tracingRoot())},
   ...next,
   // Le code de l'app (lib/) est hors de .alula/.
   experimental: { ...next.experimental, externalDir: true },

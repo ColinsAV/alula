@@ -25,7 +25,7 @@ Il n'y a **pas** de dossier `app/` ni de `next.config.*` à écrire : la CLI `al
 2. **`build()` renvoie un arbre de widgets construit par appels de fonctions**, pas du JSX : `Column({ children: [Text("a"), Text("b")] })`. Le JSX reste possible ponctuellement (ex. `<NavLink to="/blog">…</NavLink>`), mais n'écris pas de `<div>` ni de CSS : sur mobile, tout est rendu en React Native.
 3. **Utiliser un widget maison** : `MonWidget.new({ ...props })` (comme le `new` facultatif de Dart). Jamais `new MonWidget(...)` ni `<MonWidget />`.
 4. **`StatefulWidget`** :
-   - `initState()` est **obligatoire** (abstraite) ; écris `override initState() {}` s'il n'y a rien à initialiser.
+   - `initState()` (facultatif) : appelé une fois à la création, avec `this.props` déjà disponible.
    - L'état = des champs privés de la classe. On le modifie dans `this.setState(() => { this.count++; })` (ou `this.setState({ … })`). Modifier un champ sans `setState` ne reconstruit rien.
    - Les `Future` (pour `FutureBuilder`) se créent dans `initState`, jamais dans `build()`.
    - `dispose()` (facultatif) pour arrêter timers et abonnements.
