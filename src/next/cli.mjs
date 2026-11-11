@@ -88,6 +88,7 @@ async function create(argv) {
     "react-native",
     "expo-image",
     "expo-linear-gradient",
+    "expo-document-picker",
     "@expo/vector-icons",
     "react-native-paper",
     "@react-native-community/slider",
@@ -330,6 +331,17 @@ export default {
   ...next,
   // Le code de l'app (lib/) est hors de .alula/.
   experimental: { ...next.experimental, externalDir: true },
+  webpack(webpackConfig, context) {
+    const result = next.webpack ? next.webpack(webpackConfig, context) : webpackConfig;
+    // Chaque page est chargée via next/dynamic, dans un fichier à part. En dev, Next
+    // le nomme sans hash ni \`?v=\` : Safari le ressert alors depuis son cache après
+    // une modification, même après un rechargement forcé. Le hash du contenu dans
+    // le nom change son URL à chaque modification.
+    if (context.dev && !context.isServer) {
+      result.output.chunkFilename = "static/chunks/[name].[contenthash:8].js";
+    }
+    return result;
+  },
 };
 `
   );

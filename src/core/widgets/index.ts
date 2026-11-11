@@ -13,3 +13,4 @@ export * from "./curves";
 export * from "./animation";
 export * from "./async";
 export * from "./icons";
+export * from "./filePicker";

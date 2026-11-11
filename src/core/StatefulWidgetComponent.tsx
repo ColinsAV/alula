@@ -21,6 +21,13 @@ export function useStatefulWidget<T extends StatefulWidget<any, any>>(
   }
 
   const instance = instanceRef.current;
+  // Hot reload (Fast Refresh) : React garde le useRef, mais la classe a été remplacée.
+  // On rattache l'instance à la nouvelle classe : le nouveau build() s'applique et
+  // l'état (les champs) est conservé, comme le hot reload de Flutter. Les
+  // initialiseurs des champs ajoutés ne sont pas rejoués, comme en Flutter.
+  if (Object.getPrototypeOf(instance) !== ComponentClass.prototype) {
+    Object.setPrototypeOf(instance, ComponentClass.prototype);
+  }
   // Nouvelles props à chaque rendu du parent — comme `widget` en Flutter
   instance._setProps_internal(props);
 

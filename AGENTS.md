@@ -119,9 +119,25 @@ Tous importés depuis `@colinsavenue/alula` :
 - Animations : `AnimatedContainer`, `AnimatedOpacity`, `AnimatedSwitcher`, `AnimatedCrossFade`, `AnimatedSize`, `TweenAnimationBuilder`, `Curves`
 - Responsive : `MediaQuery`, `ResponsiveLayout`
 - Async : `FutureBuilder`, `ConnectionState`
+- Fichiers : `FilePicker.platform.pickFiles({ type, allowedExtensions, allowMultiple })`, `FileType` (voir ci-dessous)
 - Valeurs : `EdgeInsets`, `BorderRadius`, `Border`, `BoxDecoration`, `LinearGradient`, `RadialGradient`, `Alignment`, `MainAxisAlignment`, `CrossAxisAlignment`, `TextStyle`, `FontWeight`, `BoxFit`
 
 Si un widget Flutter manque, compose-le à partir de ceux-ci plutôt que d'écrire du HTML/CSS ou du React Native directement.
+
+## Fichiers choisis par l'utilisateur
+
+Comme le paquet Flutter `file_picker`, à appeler depuis une action de l'utilisateur (`onPressed`) :
+
+```ts
+const result = await FilePicker.platform.pickFiles({ type: FileType.custom, allowedExtensions: ["xlsx"] });
+if (result) {
+  const file = result.files[0]; // { name, size, extension, readAsBytes() }
+  const bytes = await file.readAsBytes();
+}
+```
+
+- `null` si l'utilisateur annule, ou si aucun fichier choisi n'a une extension autorisée.
+- Sur mobile, il faut `expo-document-picker` dans les dépendances du projet (`npx expo install expo-document-picker`).
 
 ## Images
 
