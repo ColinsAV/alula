@@ -126,7 +126,7 @@ import {
   IndexedStack,
   Scaffold,
   ThemeProvider,
-} from "@colins/better";
+} from "@colins/alula";
 import HomeIcon from "@mui/icons-material/Home";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
@@ -197,12 +197,12 @@ Voir [`examples/nav-shell-demo.tsx`](./examples/nav-shell-demo.tsx) pour la trad
 
 ### Câblage Next.js (App Router)
 
-Une "page" `better` est un composant normal — le point de branchement avec le App Router de Next.js, c'est `app/layout.tsx` (thème) et `app/page.tsx` (la page elle-même) :
+Une "page" `alula` est un composant normal — le point de branchement avec le App Router de Next.js, c'est `app/layout.tsx` (thème) et `app/page.tsx` (la page elle-même) :
 
 ```tsx
 // app/layout.tsx
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
-import { ThemeProvider } from "@colins/better";
+import { ThemeProvider } from "@colins/alula";
 import { theme } from "./theme";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

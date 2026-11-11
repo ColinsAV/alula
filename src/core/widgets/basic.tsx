@@ -70,7 +70,7 @@ export function Icon(
   if (process.env.NODE_ENV !== "production" && !warned.has(icon)) {
     warned.add(icon);
     console.warn(
-      `[better] Icône "${icon}" non enregistrée : écrivez Icons.${icon} en toutes lettres dans lib/ pour que la CLI l'inclue.`
+      `[alula] Icône "${icon}" non enregistrée : écrivez Icons.${icon} en toutes lettres dans lib/ pour que la CLI l'inclue.`
     );
   }
   // Emplacement vide de la bonne taille, pour ne pas décaler la mise en page.

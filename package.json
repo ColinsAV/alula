@@ -1,5 +1,5 @@
 {
-  "name": "@colins/better",
+  "name": "@colins/alula",
   "version": "0.1.0",
   "description": "Une DX façon Flutter pour React : composants à contrat explicite, état encapsulé, et (bientôt) state management partagé.",
   "type": "module",
@@ -24,7 +24,7 @@
     }
   },
   "bin": {
-    "better": "./dist/next/cli.mjs"
+    "alula": "./dist/next/cli.mjs"
   },
   "files": [
     "dist",
@@ -135,8 +135,5 @@
     "react-native-screens": {
       "optional": true
     }
-  },
-  "dependencies": {
-    "@colins/better": "file:colins-better-0.1.0.tgz"
   }
 }

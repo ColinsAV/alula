@@ -67,7 +67,7 @@ class DemoShellView extends StatelessWidget<DemoShellProps> {
     );
 
     return Scaffold({
-      appBar: AppBar({ title: "better", actions: [ThemeModeButton()] }),
+      appBar: AppBar({ title: "alula", actions: [ThemeModeButton()] }),
       body: Column({
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: "max",

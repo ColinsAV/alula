@@ -3,7 +3,7 @@ import type { IconName } from "./iconNames";
 
 // Icônes par nom, comme `Icons.add` en Flutter, pour un code identique sur
 // le web et sur mobile. Sur le web, chaque nom correspond à un composant de
-// @mui/icons-material : la CLI `better` repère les `Icons.xxx` utilisés dans
+// @mui/icons-material : la CLI `alula` repère les `Icons.xxx` utilisés dans
 // lib/ et n'enregistre que ceux-là (voir registerIcons), pour ne pas
 // embarquer les 10 000 icônes.
 

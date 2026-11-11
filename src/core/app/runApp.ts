@@ -11,7 +11,7 @@ export type App = ReactElement<MaterialAppProps>;
  * export default runApp(<MaterialApp title="Mon app" routes={[HomePage, GreetingPage]} />);
  * ```
  *
- * Le code Next généré par la CLI `better` (dans .better/) lit cet export (routes, métadonnées,
+ * Le code Next généré par la CLI `alula` (dans .alula/) lit cet export (routes, métadonnées,
  * sitemap) et le rend.
  */
 export function runApp(app: App): App {

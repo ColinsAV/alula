@@ -12,7 +12,7 @@ import {
   Text,
   Theme,
   ThemeModeButton,
-} from "@colins/better";
+} from "@colins/alula";
 
 /** La page d'accueil (`/`). Ajoutez d'autres pages avec `static route`. */
 export class HomePage extends StatefulWidget {
@@ -31,7 +31,7 @@ export class HomePage extends StatefulWidget {
         child: Column({
           spacing: 16,
           children: [
-            Text("Bienvenue dans votre app better.", { style: theme.textTheme.titleLarge }),
+            Text("Bienvenue dans votre app alula.", { style: theme.textTheme.titleLarge }),
             Text("Modifiez lib/pages/HomePage.tsx pour commencer."),
             Row({
               spacing: 16,

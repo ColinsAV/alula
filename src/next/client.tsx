@@ -8,7 +8,7 @@ import type { LoadResult, RouteDefinition } from "../core/navigation/routes";
 import type { PageClass } from "../core/navigation/pageRoutes";
 
 /**
- * Route chargée à la demande, utilisée par .better/routes.client.tsx (généré) :
+ * Route chargée à la demande, utilisée par .alula/routes.client.tsx (généré) :
  * `Component` vient de `next/dynamic` (rendu serveur + chunk séparé),
  * `load` importe le module de la page (préchargement, métadonnées),
  * `fetchData` (pages avec `static load`) appelle la Server Action générée.

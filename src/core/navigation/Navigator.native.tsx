@@ -82,7 +82,7 @@ export function NavigatorProvider(props: NavigatorProviderProps) {
         const result = await fetchData(path);
         pushEntry(result.found ? pageForPath(path, result.data) : onUnknownRoute?.(path) ?? pageForPath("/__404__"));
       } catch (error) {
-        console.error(`[better] Chargement des données de ${path} impossible :`, error);
+        console.error(`[alula] Chargement des données de ${path} impossible :`, error);
       }
     },
     [pushEntry, pageForPath, onUnknownRoute]

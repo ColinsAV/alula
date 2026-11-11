@@ -30,7 +30,7 @@ export interface MaterialAppProps {
   themeMode?: ThemeMode;
   /**
    * Les pages de l'app : des widgets portant `static route`. Inutile avec la
-   * CLI `better`, qui les trouve seule et les charge à la demande.
+   * CLI `alula`, qui les trouve seule et les charge à la demande.
    */
   routes?: PageClass[];
   /** Table de routes déjà construite — injectée par le code généré par la CLI. */

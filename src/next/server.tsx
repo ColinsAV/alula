@@ -7,9 +7,9 @@ import type { App } from "../core/app/runApp";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { StyleRegistry } from "./client";
 
-// Helpers utilisés par les fichiers générés dans .better/app/ par la CLI `better`.
+// Helpers utilisés par les fichiers générés dans .alula/app/ par la CLI `alula`.
 // Côté serveur : ils lisent les props du <MaterialApp> et les pages du
-// manifeste généré (.better/routes.server.ts, imports non lazy).
+// manifeste généré (.alula/routes.server.ts, imports non lazy).
 
 type PathParams = { path?: string[] };
 // Next 15 : les paramètres de la route arrivent sous forme de promesse.

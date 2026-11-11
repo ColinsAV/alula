@@ -4,9 +4,9 @@ node_modules/
 # Build de la lib
 dist/
 
-# Apps générées par la CLI `better` (web : Next, mobile : Expo)
-.better/
-.better-native/
+# Apps générées par la CLI `alula` (web : Next, mobile : Expo)
+.alula/
+.alula-native/
 .expo/
 
 # Next

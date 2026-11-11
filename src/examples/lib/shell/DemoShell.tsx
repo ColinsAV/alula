@@ -73,7 +73,7 @@ class DemoShellView extends StatelessWidget<DemoShellProps> {
         automaticallyImplyLeading: false,
         title: (
           <NavLink to="/" style={plainLink}>
-            better
+            alula
           </NavLink>
         ),
         actions: [ThemeModeButton()],

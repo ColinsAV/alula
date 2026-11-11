@@ -22,7 +22,7 @@ const ARTICLES: Article[] = [
     slug: "premier-article",
     title: "La syntaxe Flutter, le SEO de Next.js",
     summary: "Pourquoi écrire des widgets qui deviennent un vrai site Next.",
-    body: "Les pages sont des widgets. La CLI génère l'app Next dans .better/, et chaque page est rendue côté serveur avec ses données.",
+    body: "Les pages sont des widgets. La CLI génère l'app Next dans .alula/, et chaque page est rendue côté serveur avec ses données.",
     publishedAt: "2026-10-01",
   },
   {

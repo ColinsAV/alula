@@ -53,7 +53,7 @@ export const Image = {
    */
   asset(source: ImageSource, options: AssetImageOptions = {}): ReactElement {
     if (typeof source === "string") {
-      console.warn(`[better] Image.asset("${source}") : les chemins public/ ne marchent que sur le web. Importez l'image.`);
+      console.warn(`[alula] Image.asset("${source}") : les chemins public/ ne marchent que sur le web. Importez l'image.`);
       return image({ uri: source }, options);
     }
     return image(typeof source === "object" ? { uri: source.src } : source, options);

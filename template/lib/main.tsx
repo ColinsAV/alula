@@ -1,6 +1,6 @@
-import { MaterialApp, runApp, ThemeMode } from "@colins/better";
+import { MaterialApp, runApp, ThemeMode } from "@colins/alula";
 
-// Point d'entrée de l'app. Pas de liste de pages : `better` trouve les
+// Point d'entrée de l'app. Pas de liste de pages : `alula` trouve les
 // widgets qui ont un `static route` dans lib/.
 export default runApp(
   <MaterialApp

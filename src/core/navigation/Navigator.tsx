@@ -114,7 +114,7 @@ export function NavigatorProvider(props: NavigatorProviderProps) {
         (error: unknown) => {
           if (id !== navigationId.current) return;
           setLoading(false);
-          console.error(`[better] Chargement des données de ${path} impossible :`, error);
+          console.error(`[alula] Chargement des données de ${path} impossible :`, error);
           window.location.assign(path);
         }
       );

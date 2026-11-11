@@ -1,21 +1,21 @@
 #!/usr/bin/env node
-// CLI de @colins/better — volontairement en JS pur (aucun import relatif)
+// CLI de @colins/alula — volontairement en JS pur (aucun import relatif)
 // pour être exécutée telle quelle, sans compilation.
 //
-//   better dev | build | start [--native] [...options next / expo]
-//   better create <dossier> [--native | --web]
+//   alula dev | build | start [--native] [...options next / expo]
+//   alula create <dossier> [--native | --web]
 //
-// Génère le projet Next dans .better/ (comme .dart_tool/ en Flutter) à partir
-// de lib/main.tsx, puis lance `next <commande> .better`.
+// Génère le projet Next dans .alula/ (comme .dart_tool/ en Flutter) à partir
+// de lib/main.tsx, puis lance `next <commande> .alula`.
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 
-const HEADER = "// GÉNÉRÉ par @colins/better — ne pas modifier.\n";
+const HEADER = "// GÉNÉRÉ par @colins/alula — ne pas modifier.\n";
 
-// --- better create -----------------------------------------------------------
+// --- alula create -----------------------------------------------------------
 // Avant tout le reste : il n'y a pas encore de projet (ni lib/main.tsx).
 
 if (process.argv[2] === "create") {
@@ -24,7 +24,7 @@ if (process.argv[2] === "create") {
 }
 
 /**
- * `better create <dossier> [--native | --web] [--from <spec>] [--no-install] [--no-git]`
+ * `alula create <dossier> [--native | --web] [--from <spec>] [--no-install] [--no-git]`
  *
  * Crée un projet à partir de template/ (comme `flutter create`). `--from`
  * remplace la version de la lib dans les dépendances (fichier .tgz, `github:…`)
@@ -54,7 +54,7 @@ async function create(argv) {
   const dirName = positional[0] || (await ask("Nom du projet : ")) || "mon-app";
   const target = path.resolve(dirName);
   if (fs.existsSync(target) && fs.readdirSync(target).length > 0) {
-    console.error(`[better] Le dossier ${target} existe déjà et n'est pas vide.`);
+    console.error(`[alula] Le dossier ${target} existe déjà et n'est pas vide.`);
     process.exit(1);
   }
   const native = flag("--native") || (!flag("--web") && !/^n/i.test(await ask("Ajouter l'app mobile (Expo) ? (O/n) ")));
@@ -103,10 +103,10 @@ async function create(argv) {
     private: true,
     type: "module",
     scripts: {
-      dev: "better dev",
-      ...(native && { "dev:native": "better dev --native" }),
-      build: "better build",
-      start: "better start",
+      dev: "alula dev",
+      ...(native && { "dev:native": "alula dev --native" }),
+      build: "alula build",
+      start: "alula start",
       typecheck: "tsc --noEmit",
     },
     dependencies: {
@@ -124,8 +124,8 @@ async function create(argv) {
   fs.writeFileSync(path.join(target, "package.json"), JSON.stringify(pkg, null, 2) + "\n");
 
   fs.writeFileSync(
-    path.join(target, "better.config.mjs"),
-    `// Config de better (facultative) : point d'entrée, config Next, cache des pages…
+    path.join(target, "alula.config.mjs"),
+    `// Config de alula (facultative) : point d'entrée, config Next, cache des pages…
 export default {
 ${native ? `  native: { name: ${JSON.stringify(title)}, slug: ${JSON.stringify(slug)}, scheme: ${JSON.stringify(slug)} },\n` : ""}};
 `
@@ -136,20 +136,20 @@ ${native ? `  native: { name: ${JSON.stringify(title)}, slug: ${JSON.stringify(s
   const run = (command) => execSync(command, { cwd: target, stdio: "inherit" });
 
   if (!flag("--no-install")) {
-    console.log(`\n[better] Installation des dépendances (${pm} install)…\n`);
+    console.log(`\n[alula] Installation des dépendances (${pm} install)…\n`);
     run(`${pm} install`);
   }
   if (!flag("--no-git")) {
     try {
       run("git init -q");
     } catch {
-      console.warn("[better] git introuvable : dépôt non initialisé.");
+      console.warn("[alula] git introuvable : dépôt non initialisé.");
     }
   }
 
   const runScript = pm === "npm" ? "npm run" : pm;
   console.log(`
-[better] Projet créé dans ${target}
+[alula] Projet créé dans ${target}
 
   cd ${path.relative(process.cwd(), target) || "."}
   ${runScript} dev${native ? `           # site web\n  ${runScript} dev:native    # app mobile (Expo Go)` : ""}
@@ -157,25 +157,25 @@ ${native ? `  native: { name: ${JSON.stringify(title)}, slug: ${JSON.stringify(s
 }
 
 /**
- * Config facultative : `better.config.mjs` à la racine du projet.
+ * Config facultative : `alula.config.mjs` à la racine du projet.
  *
- * @typedef {object} BetterConfig
+ * @typedef {object} AlulaConfig
  * @property {string} [entry] Point d'entrée, relatif à la racine. Par défaut `"lib/main.tsx"`.
  * @property {import("next").NextConfig} [next] Config Next additionnelle.
  * @property {number | false} [revalidate] Durée de cache des pages en secondes
  *   (régénérées au plus une fois par période). Par défaut `false` : jamais
  *   régénérées avant le prochain build.
  * @property {{ name?: string, slug?: string, scheme?: string }} [native] App mobile
- *   (`better dev --native`) : nom affiché, identifiant Expo, schéma des liens profonds.
+ *   (`alula dev --native`) : nom affiché, identifiant Expo, schéma des liens profonds.
  * @property {string} [library] Développement de la lib uniquement : dossier source de
- *   la lib, importé en relatif au lieu de `@colins/better`.
+ *   la lib, importé en relatif au lieu de `@colins/alula`.
  */
 
 const root = process.cwd();
-const outDir = path.join(root, ".better");
-const configFile = path.join(root, "better.config.mjs");
+const outDir = path.join(root, ".alula");
+const configFile = path.join(root, "alula.config.mjs");
 
-/** @type {BetterConfig} */
+/** @type {AlulaConfig} */
 const config = fs.existsSync(configFile)
   ? (await import(pathToFileURL(configFile).href)).default ?? {}
   : {};
@@ -184,7 +184,7 @@ const entry = path.resolve(root, config.entry ?? "lib/main.tsx");
 const library = config.library ? path.resolve(root, config.library) : null;
 
 if (!fs.existsSync(entry)) {
-  console.error(`[better] Point d'entrée introuvable : ${entry}`);
+  console.error(`[alula] Point d'entrée introuvable : ${entry}`);
   process.exit(1);
 }
 
@@ -198,7 +198,7 @@ function relativeImport(fromDir, target) {
 function libImport(fromDir, subpath) {
   return library
     ? relativeImport(fromDir, path.join(library, subpath))
-    : `@colins/better/${subpath}`;
+    : `@colins/alula/${subpath}`;
 }
 
 function writeIfChanged(file, content) {
@@ -208,9 +208,9 @@ function writeIfChanged(file, content) {
   fs.writeFileSync(file, content);
 }
 
-/** Import de la racine de la lib (`@colins/better` ou son index en source). */
+/** Import de la racine de la lib (`@colins/alula` ou son index en source). */
 function libRootImport(fromDir) {
-  return library ? relativeImport(fromDir, path.join(library, "index")) : "@colins/better";
+  return library ? relativeImport(fromDir, path.join(library, "index")) : "@colins/alula";
 }
 
 const libDir = path.dirname(entry);
@@ -254,11 +254,11 @@ function findPages() {
   const seen = new Map();
   for (const page of pages) {
     if (seen.has(page.route)) {
-      console.warn(`[better] Route en double "${page.route}" : ${seen.get(page.route)} et ${page.name}`);
+      console.warn(`[alula] Route en double "${page.route}" : ${seen.get(page.route)} et ${page.name}`);
     }
     seen.set(page.route, page.name);
   }
-  if (pages.length === 0) console.warn(`[better] Aucune page (static route) trouvée dans ${libDir}`);
+  if (pages.length === 0) console.warn(`[alula] Aucune page (static route) trouvée dans ${libDir}`);
   return pages;
 }
 
@@ -289,13 +289,13 @@ function findIcons() {
       requireFromRoot.resolve(`@mui/icons-material/${component}`);
       icons.push({ name, component });
     } catch {
-      console.warn(`[better] Icône inconnue : Icons.${name} (aucun @mui/icons-material/${component})`);
+      console.warn(`[alula] Icône inconnue : Icons.${name} (aucun @mui/icons-material/${component})`);
     }
   }
   return icons;
 }
 
-/** Lien `.better/<name>` → `<racine>/<name>`, si la source existe. */
+/** Lien `.alula/<name>` → `<racine>/<name>`, si la source existe. */
 function linkFromRoot(name) {
   const source = path.join(root, name);
   const link = path.join(outDir, name);
@@ -306,7 +306,7 @@ function linkFromRoot(name) {
 function generate() {
   const appDir = path.join(outDir, "app");
   const catchAllDir = path.join(appDir, "[[...path]]");
-  const clientDir = path.join(appDir, "_better");
+  const clientDir = path.join(appDir, "_alula");
 
   writeIfChanged(
     path.join(outDir, "next.config.mjs"),
@@ -317,7 +317,7 @@ const next = config.next ?? {};
 
 export default {
   ...next,
-  // Le code de l'app (lib/) est hors de .better/.
+  // Le code de l'app (lib/) est hors de .alula/.
   experimental: { ...next.experimental, externalDir: true },
 };
 `
@@ -409,7 +409,7 @@ import { cloneElement } from "react";
 import app from "${relativeImport(clientDir, entry)}";
 import { routes } from "./routes.client";
 
-export function BetterClient({ initialPath, initialData }: { initialPath: string; initialData?: unknown }) {
+export function AlulaClient({ initialPath, initialData }: { initialPath: string; initialData?: unknown }) {
   return cloneElement(app, { initialPath, initialData, routeTable: routes });
 }
 `
@@ -420,10 +420,10 @@ export function BetterClient({ initialPath, initialData }: { initialPath: string
     `${HEADER}
 import app from "${relativeImport(catchAllDir, entry)}";
 import { createPage } from "${libImport(catchAllDir, "next/server")}";
-import { BetterClient } from "../_better/client";
-import { pages } from "../_better/routes.server";
+import { AlulaClient } from "../_alula/client";
+import { pages } from "../_alula/routes.server";
 
-const page = createPage(app, pages, BetterClient);
+const page = createPage(app, pages, AlulaClient);
 export const generateStaticParams = page.generateStaticParams;
 export const generateMetadata = page.generateMetadata;
 export default page.Page;
@@ -438,7 +438,7 @@ ${
     `${HEADER}
 import app from "${relativeImport(appDir, entry)}";
 import { createSitemap } from "${libImport(appDir, "next/server")}";
-import { pages } from "./_better/routes.server";
+import { pages } from "./_alula/routes.server";
 
 export default createSitemap(app, pages);
 `
@@ -463,10 +463,10 @@ export default createRobots(app);
 
 // --- Mobile (React Native / Expo) --------------------------------------------
 
-const nativeDir = path.join(root, ".better-native");
+const nativeDir = path.join(root, ".alula-native");
 
 /**
- * Génère l'app Expo dans .better-native/ : même lib/, mêmes pages, rendues
+ * Génère l'app Expo dans .alula-native/ : même lib/, mêmes pages, rendues
  * par les fichiers `.native.tsx` de la lib (React Native).
  */
 function generateNative() {
@@ -479,7 +479,7 @@ function generateNative() {
   writeIfChanged(
     path.join(nativeDir, "package.json"),
     JSON.stringify(
-      { name: "better-native-app", private: true, main: "index.ts", dependencies: { expo: expoVersion } },
+      { name: "alula-native-app", private: true, main: "index.ts", dependencies: { expo: expoVersion } },
       null,
       2
     ) + "\n"
@@ -492,7 +492,7 @@ function generateNative() {
         expo: {
           name: config.native?.name ?? title,
           slug: config.native?.slug ?? title,
-          scheme: config.native?.scheme ?? "better",
+          scheme: config.native?.scheme ?? "alula",
           // Suit le réglage clair / sombre de l'appareil.
           userInterfaceStyle: "automatic",
           newArchEnabled: true,
@@ -511,7 +511,7 @@ function generateNative() {
 const { getDefaultConfig } = require("expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
-// Le code de l'app (lib/) et node_modules sont hors de .better-native/.
+// Le code de l'app (lib/) et node_modules sont hors de .alula-native/.
 config.watchFolders = [...new Set([...(config.watchFolders ?? []), ${watchFolders.map((f) => JSON.stringify(f)).join(", ")}])];
 config.resolver.nodeModulesPaths = [${JSON.stringify(path.join(workspace, "node_modules"))}];
 
@@ -567,7 +567,7 @@ function watch(regenerate) {
       try {
         regenerate();
       } catch (error) {
-        console.error("[better] Génération impossible :", error);
+        console.error("[alula] Génération impossible :", error);
       }
     }, 100);
   });
@@ -580,13 +580,13 @@ const native = rawArgs.includes("--native");
 const args = rawArgs.filter((arg) => arg !== "--native");
 
 if (!["dev", "build", "start"].includes(command)) {
-  console.error(`[better] Commande inconnue : ${command} (create | dev | build | start) [--native]`);
+  console.error(`[alula] Commande inconnue : ${command} (create | dev | build | start) [--native]`);
   process.exit(1);
 }
 
 if (native) {
   if (command !== "dev") {
-    console.error("[better] Sur mobile, seule `better dev --native` existe pour l'instant (build : bientôt, via EAS).");
+    console.error("[alula] Sur mobile, seule `alula dev --native` existe pour l'instant (build : bientôt, via EAS).");
     process.exit(1);
   }
   generateNative();

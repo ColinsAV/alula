@@ -105,7 +105,7 @@ function IconView({ icon, size = 24, color }: { icon: IconData; size?: number; c
     const label = typeof icon === "string" ? icon : "(composant MUI)";
     if (!warned.has(label)) {
       warned.add(label);
-      console.warn(`[better] Icône ${label} indisponible sur mobile.`);
+      console.warn(`[alula] Icône ${label} indisponible sur mobile.`);
     }
     return createElement(View, { style: { width: size, height: size } });
   }

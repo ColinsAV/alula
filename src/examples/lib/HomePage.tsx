@@ -53,7 +53,7 @@ class _CounterState extends State<Counter> {
   }
 }`;
 
-const BETTER_CODE = `class Counter extends StatefulWidget {
+const ALULA_CODE = `class Counter extends StatefulWidget {
   private count = 0;
 
   override build() {
@@ -83,7 +83,7 @@ const plainLink = { color: "inherit", textDecoration: "none" } as const;
 export class HomePage extends StatelessWidget {
   static route = "/";
   static metadata = () => ({
-    title: "better — la syntaxe Flutter, le SEO de Next.js",
+    title: "alula — la syntaxe Flutter, le SEO de Next.js",
     description: "Écrivez des widgets façon Flutter, obtenez un vrai site Next.js rendu côté serveur.",
   });
 
@@ -129,18 +129,18 @@ export class HomePage extends StatelessWidget {
     });
 
     const flutter = CodeBlock({ label: "Flutter (Dart)", code: FLUTTER_CODE });
-    const better = CodeBlock({ label: "better (TypeScript)", code: BETTER_CODE });
+    const alula = CodeBlock({ label: "alula (TypeScript)", code: ALULA_CODE });
     const comparison = Column({
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 24,
       children: [
-        heading("Le même widget, des deux côtés", "Si vous connaissez Flutter, vous connaissez déjà better."),
+        heading("Le même widget, des deux côtés", "Si vous connaissez Flutter, vous connaissez déjà alula."),
         ResponsiveLayout({
-          compact: Column({ crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16, children: [flutter, better] }),
+          compact: Column({ crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16, children: [flutter, alula] }),
           expanded: Row({
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
-            children: [Expanded({ child: flutter }), Expanded({ child: better })],
+            children: [Expanded({ child: flutter }), Expanded({ child: alula })],
           }),
         }),
       ],
@@ -223,7 +223,7 @@ export class HomePage extends StatelessWidget {
       spacing: 16,
       children: [
         Divider(),
-        Text("better — licence MIT. Ce site est construit avec better.", {
+        Text("alula — licence MIT. Ce site est construit avec alula.", {
           style: { fontSize: 13, color: colors.onSurfaceVariant },
           textAlign: TextAlign.center,
         }),
@@ -233,7 +233,7 @@ export class HomePage extends StatelessWidget {
     return Scaffold({
       appBar: AppBar({
         automaticallyImplyLeading: false,
-        title: Text("better", { style: { fontWeight: 700 } }),
+        title: Text("alula", { style: { fontWeight: 700 } }),
         actions: [
           <NavLink to="/layout" style={{ ...plainLink, marginRight: 8 }}>
             Catalogue

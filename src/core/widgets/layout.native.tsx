@@ -71,7 +71,7 @@ function background(decoration: BoxDecoration | undefined): ReactNode[] {
       })
     );
   } else if (gradient?.type === "radial") {
-    console.warn("[better] RadialGradient n'est pas encore disponible sur mobile : couleur de fond utilisée.");
+    console.warn("[alula] RadialGradient n'est pas encore disponible sur mobile : couleur de fond utilisée.");
   }
   const image = decoration?.image;
   if (image) {
