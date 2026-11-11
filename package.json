@@ -1,6 +1,6 @@
 {
   "name": "@colinsavenue/alula",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Une DX façon Flutter pour React : composants à contrat explicite, état encapsulé, et (bientôt) state management partagé.",
   "type": "module",
   "main": "./dist/index.cjs",
