@@ -1,6 +1,6 @@
-# @keetlab/widgets
+# @colins/widgets
 
-*(nom de placeholder — renomme-le comme tu veux avant de publier : `sed -i '' 's/@keetlab\/widgets/@ton-scope\/ton-nom/' package.json`)*
+*(nom de placeholder — renomme-le comme tu veux avant de publier : `sed -i '' 's/@colins\/widgets/@ton-scope\/ton-nom/' package.json`)*
 
 Une DX façon Flutter pour React : composants à **contrat explicite** (props/état déclarés au même endroit, pas éparpillés en hooks), **état encapsulé** qui se fusionne au lieu de s'écraser, et un cycle de vie nommé plutôt que des `useEffect` anonymes.
 
@@ -26,7 +26,7 @@ function Counter({ step = 1 }: { step?: number }) {
 Tu écris ça — même résultat, mais un seul contrat explicite (comme un `StatefulWidget` Flutter) :
 
 ```tsx
-import { defineComponent } from "@keetlab/widgets";
+import { defineComponent } from "@colins/widgets";
 
 interface Props { step?: number }
 interface State { count: number }
@@ -67,7 +67,7 @@ Voir [`examples/counter.tsx`](./examples/counter.tsx) pour un exemple complet.
 `NavigatorProvider` + `useNavigator()` : une pile de pages en mémoire façon `Navigator` Flutter. Une "page" n'est qu'un composant — souvent défini avec `defineComponent`, mais ce n'est pas obligatoire — et on lui passe ses données directement comme à n'importe quel composant, en construisant l'élément :
 
 ```tsx
-import { NavigatorProvider, useNavigator, defineComponent } from "@keetlab/widgets";
+import { NavigatorProvider, useNavigator, defineComponent } from "@colins/widgets";
 
 interface Article { id: string; title: string; body: string }
 
@@ -126,7 +126,7 @@ import {
   IndexedStack,
   Scaffold,
   ThemeProvider,
-} from "@keetlab/better";
+} from "@colins/better";
 import HomeIcon from "@mui/icons-material/Home";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
@@ -202,7 +202,7 @@ Une "page" `better` est un composant normal — le point de branchement avec le 
 ```tsx
 // app/layout.tsx
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
-import { ThemeProvider } from "@keetlab/better";
+import { ThemeProvider } from "@colins/better";
 import { theme } from "./theme";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

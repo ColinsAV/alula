@@ -1,5 +1,5 @@
 {
-  "name": "@keetlab/better",
+  "name": "@colins/better",
   "version": "0.1.0",
   "description": "Une DX façon Flutter pour React : composants à contrat explicite, état encapsulé, et (bientôt) state management partagé.",
   "type": "module",
@@ -137,6 +137,6 @@
     }
   },
   "dependencies": {
-    "@keetlab/better": "file:keetlab-better-0.1.0.tgz"
+    "@colins/better": "file:colins-better-0.1.0.tgz"
   }
 }

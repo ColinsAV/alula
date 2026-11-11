@@ -12,7 +12,7 @@ import {
   Text,
   Theme,
   ThemeModeButton,
-} from "@keetlab/better";
+} from "@colins/better";
 
 /** La page d'accueil (`/`). Ajoutez d'autres pages avec `static route`. */
 export class HomePage extends StatefulWidget {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// CLI de @keetlab/better — volontairement en JS pur (aucun import relatif)
+// CLI de @colins/better — volontairement en JS pur (aucun import relatif)
 // pour être exécutée telle quelle, sans compilation.
 //
 //   better dev | build | start [--native] [...options next / expo]
@@ -13,7 +13,7 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 
-const HEADER = "// GÉNÉRÉ par @keetlab/better — ne pas modifier.\n";
+const HEADER = "// GÉNÉRÉ par @colins/better — ne pas modifier.\n";
 
 // --- better create -----------------------------------------------------------
 // Avant tout le reste : il n'y a pas encore de projet (ni lib/main.tsx).
@@ -168,7 +168,7 @@ ${native ? `  native: { name: ${JSON.stringify(title)}, slug: ${JSON.stringify(s
  * @property {{ name?: string, slug?: string, scheme?: string }} [native] App mobile
  *   (`better dev --native`) : nom affiché, identifiant Expo, schéma des liens profonds.
  * @property {string} [library] Développement de la lib uniquement : dossier source de
- *   la lib, importé en relatif au lieu de `@keetlab/better`.
+ *   la lib, importé en relatif au lieu de `@colins/better`.
  */
 
 const root = process.cwd();
@@ -198,7 +198,7 @@ function relativeImport(fromDir, target) {
 function libImport(fromDir, subpath) {
   return library
     ? relativeImport(fromDir, path.join(library, subpath))
-    : `@keetlab/better/${subpath}`;
+    : `@colins/better/${subpath}`;
 }
 
 function writeIfChanged(file, content) {
@@ -208,9 +208,9 @@ function writeIfChanged(file, content) {
   fs.writeFileSync(file, content);
 }
 
-/** Import de la racine de la lib (`@keetlab/better` ou son index en source). */
+/** Import de la racine de la lib (`@colins/better` ou son index en source). */
 function libRootImport(fromDir) {
-  return library ? relativeImport(fromDir, path.join(library, "index")) : "@keetlab/better";
+  return library ? relativeImport(fromDir, path.join(library, "index")) : "@colins/better";
 }
 
 const libDir = path.dirname(entry);

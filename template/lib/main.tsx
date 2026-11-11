@@ -1,4 +1,4 @@
-import { MaterialApp, runApp, ThemeMode } from "@keetlab/better";
+import { MaterialApp, runApp, ThemeMode } from "@colins/better";
 
 // Point d'entrée de l'app. Pas de liste de pages : `better` trouve les
 // widgets qui ont un `static route` dans lib/.
