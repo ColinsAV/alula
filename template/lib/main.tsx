@@ -1,4 +1,4 @@
-import { MaterialApp, runApp, ThemeMode } from "@colins/alula";
+import { MaterialApp, runApp, ThemeMode } from "@colinsavenue/alula";
 
 // Point d'entrée de l'app. Pas de liste de pages : `alula` trouve les
 // widgets qui ont un `static route` dans lib/.

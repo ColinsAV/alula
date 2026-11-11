@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// CLI de @colins/alula — volontairement en JS pur (aucun import relatif)
+// CLI de @colinsavenue/alula — volontairement en JS pur (aucun import relatif)
 // pour être exécutée telle quelle, sans compilation.
 //
 //   alula dev | build | start [--native] [...options next / expo]
@@ -13,7 +13,7 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 
-const HEADER = "// GÉNÉRÉ par @colins/alula — ne pas modifier.\n";
+const HEADER = "// GÉNÉRÉ par @colinsavenue/alula — ne pas modifier.\n";
 
 // --- alula create -----------------------------------------------------------
 // Avant tout le reste : il n'y a pas encore de projet (ni lib/main.tsx).
@@ -168,7 +168,7 @@ ${native ? `  native: { name: ${JSON.stringify(title)}, slug: ${JSON.stringify(s
  * @property {{ name?: string, slug?: string, scheme?: string }} [native] App mobile
  *   (`alula dev --native`) : nom affiché, identifiant Expo, schéma des liens profonds.
  * @property {string} [library] Développement de la lib uniquement : dossier source de
- *   la lib, importé en relatif au lieu de `@colins/alula`.
+ *   la lib, importé en relatif au lieu de `@colinsavenue/alula`.
  */
 
 const root = process.cwd();
@@ -198,7 +198,7 @@ function relativeImport(fromDir, target) {
 function libImport(fromDir, subpath) {
   return library
     ? relativeImport(fromDir, path.join(library, subpath))
-    : `@colins/alula/${subpath}`;
+    : `@colinsavenue/alula/${subpath}`;
 }
 
 function writeIfChanged(file, content) {
@@ -208,9 +208,9 @@ function writeIfChanged(file, content) {
   fs.writeFileSync(file, content);
 }
 
-/** Import de la racine de la lib (`@colins/alula` ou son index en source). */
+/** Import de la racine de la lib (`@colinsavenue/alula` ou son index en source). */
 function libRootImport(fromDir) {
-  return library ? relativeImport(fromDir, path.join(library, "index")) : "@colins/alula";
+  return library ? relativeImport(fromDir, path.join(library, "index")) : "@colinsavenue/alula";
 }
 
 const libDir = path.dirname(entry);
