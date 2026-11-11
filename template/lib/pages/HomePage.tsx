@@ -21,6 +21,8 @@ export class HomePage extends StatefulWidget {
 
   private count = 0;
 
+  override initState() {}
+
   override build() {
     const theme = Theme.of();
 

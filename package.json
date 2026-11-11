@@ -28,7 +28,8 @@
   },
   "files": [
     "dist",
-    "template"
+    "template",
+    "AGENTS.md"
   ],
   "sideEffects": false,
   "scripts": {

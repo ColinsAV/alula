@@ -1,255 +1,265 @@
-# @colinsavenue/widgets
+# @colinsavenue/alula
 
-*(nom de placeholder — renomme-le comme tu veux avant de publier : `sed -i '' 's/@colinsavenue\/widgets/@ton-scope\/ton-nom/' package.json`)*
+Écrire une app React comme une app Flutter : des widgets en classes (`StatelessWidget`, `StatefulWidget`), des fonctions de mise en page (`Scaffold`, `Column`, `Row`, `Text`…), un `MaterialApp` comme racine, et une CLI `alula` qui transforme le tout en **site Next.js** (rendu serveur, SEO, sitemap) et en **app mobile Expo** à partir du même code.
 
-Une DX façon Flutter pour React : composants à **contrat explicite** (props/état déclarés au même endroit, pas éparpillés en hooks), **état encapsulé** qui se fusionne au lieu de s'écraser, et un cycle de vie nommé plutôt que des `useEffect` anonymes.
+Ce n'est pas un moteur de rendu alternatif : sous le capot ce sont des composants React normaux (MUI sur le web, React Native + Paper sur mobile). Les hooks, les DevTools et les composants JSX restent utilisables.
 
-Ce n'est pas un moteur de rendu alternatif — c'est une couche fine par-dessus les hooks React (donc 100% compatible DevTools, Suspense, concurrent mode, etc.), qui change juste la façon dont tu **écris** un composant.
+## Démarrer
 
-## L'idée
-
-Au lieu de ça :
-
-```tsx
-function Counter({ step = 1 }: { step?: number }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    console.log("monté");
-    return () => console.log("démonté");
-  }, []);
-
-  return <button onClick={() => setCount((c) => c + step)}>{count}</button>;
-}
+```bash
+npx @colinsavenue/alula create mon-app   # --web (site seul) ou --native (site + mobile)
+cd mon-app
+npm run dev          # site web (Next.js)
+npm run dev:native   # app mobile (Expo Go), si créée avec --native
 ```
 
-Tu écris ça — même résultat, mais un seul contrat explicite (comme un `StatefulWidget` Flutter) :
+Le projet généré :
 
-```tsx
-import { defineComponent } from "@colinsavenue/widgets";
-
-interface Props { step?: number }
-interface State { count: number }
-
-const Counter = defineComponent<Props, State>({
-  name: "Counter",
-  initialState: () => ({ count: 0 }),
-  onMount: () => {
-    console.log("monté");
-    return () => console.log("démonté");
-  },
-  build: (ctx) => (
-    <button onClick={() => ctx.setState((s) => ({ count: s.count + (ctx.props.step ?? 1) }))}>
-      {ctx.state.count}
-    </button>
-  ),
-});
+```
+mon-app/
+├── lib/
+│   ├── main.tsx            # point d'entrée : runApp(<MaterialApp … />)
+│   └── pages/HomePage.tsx  # une page = un widget avec `static route`
+├── alula.config.mjs        # config facultative
+└── package.json            # scripts : alula dev | build | start
 ```
 
-## API (lot 1 : le core)
+Options de `create` : `--from <spec>` (version de la lib : `.tgz`, `github:…`), `--no-install`, `--no-git`.
 
-`defineComponent<Props, State>(config)` renvoie un composant React normal. `config` :
+### Avec un assistant IA
 
-| champ | rôle | équivalent Flutter |
-|---|---|---|
-| `name` | nom affiché dans React DevTools | — |
-| `initialState(props)` | calcule l'état initial, une seule fois | `createState` + `initState` |
-| `build(ctx)` | rend le JSX, appelé à chaque rendu | `build(context)` |
-| `onMount(ctx)` | une fois après le 1er rendu ; le retour (fonction) sert de nettoyage au démontage | `initState` + `dispose` |
-| `onUpdate(prevProps, ctx)` | après chaque rendu où les props ont changé (comparaison superficielle) | `didUpdateWidget` |
+Le paquet contient [`AGENTS.md`](./AGENTS.md), un guide pour les assistants de code (Claude Code, Cursor, Codex, Copilot…). Un projet créé avec `alula create` a déjà un `AGENTS.md` (et un `CLAUDE.md`) qui y renvoie. Pour un projet existant, ajoute ceci à ton `AGENTS.md` :
 
-`ctx` (le `BuildContext`) porte `props`, `state` (lecture seule) et `setState` — qui **fusionne** un objet partiel (ou le retour d'une fonction `(prevState) => partial`) au lieu de remplacer l'état, comme le `setState` de Flutter plutôt que le setter brut de `useState`.
-
-Voir [`examples/counter.tsx`](./examples/counter.tsx) pour un exemple complet.
-
-## Navigation (pages = composants, données passées comme un widget)
-
-`NavigatorProvider` + `useNavigator()` : une pile de pages en mémoire façon `Navigator` Flutter. Une "page" n'est qu'un composant — souvent défini avec `defineComponent`, mais ce n'est pas obligatoire — et on lui passe ses données directement comme à n'importe quel composant, en construisant l'élément :
-
-```tsx
-import { NavigatorProvider, useNavigator, defineComponent } from "@colinsavenue/widgets";
-
-interface Article { id: string; title: string; body: string }
-
-const DetailPage = defineComponent<{ article: Article }, Record<string, never>>({
-  name: "DetailPage",
-  build: (ctx) => {
-    const nav = useNavigator();
-    return (
-      <div>
-        <button onClick={() => nav.pop()}>← Retour</button>
-        <h1>{ctx.props.article.title}</h1>
-        <p>{ctx.props.article.body}</p>
-      </div>
-    );
-  },
-});
-
-const ListPage = defineComponent<Record<string, never>, Record<string, never>>({
-  name: "ListPage",
-  build: () => {
-    const nav = useNavigator();
-    return (
-      <button onClick={() => nav.push(<DetailPage article={someArticle} />)}>
-        Voir l'article
-      </button>
-    );
-  },
-});
-
-export const App = () => <NavigatorProvider initialPage={<ListPage />} />;
+```md
+Avant d'écrire du code, lis `node_modules/@colinsavenue/alula/AGENTS.md`.
 ```
 
-C'est exactement `Navigator.push(context, MaterialPageRoute(builder: (_) => DetailPage(article: someArticle)))` en Flutter — sauf qu'ici le typage vient gratuitement du JSX/TSX : pas de table de routes en string, pas de `params` non typés à valider à la main.
-
-| API | rôle | équivalent Flutter |
-|---|---|---|
-| `<NavigatorProvider initialPage={...} />` | conteneur de la pile de pages | `MaterialApp(home: ...)` + `Navigator` implicite |
-| `nav.push(<Page {...props} />)` | empile une nouvelle page (typée par le JSX) | `Navigator.push` |
-| `nav.pop()` | dépile, révèle la page du dessous (qui n'a jamais été démontée) | `Navigator.pop` |
-| `nav.replace(<Page {...props} />)` | remplace la page du dessus (l'ancienne est démontée) | `Navigator.pushReplacement` |
-| `nav.canPop` / `nav.depth` | état de la pile | `Navigator.canPop` |
-
-Point important, hérité de Flutter : **toutes les pages de la pile restent montées** (juste cachées) tant qu'on ne fait pas `pop()` — donc l'état encapsulé d'une page (un compteur, un formulaire en cours, une position de scroll) survit quand on navigue ailleurs puis qu'on revient. Voir [`examples/navigation-demo.tsx`](./examples/navigation-demo.tsx) et les tests dans `src/navigation/Navigator.test.tsx` (dont un qui vérifie exactement ça).
-
-Par défaut (`syncWithBrowserHistory: true`), `pop()` est aussi relié au bouton "retour" du navigateur. **Limite volontaire du v1** : c'est un empilement en mémoire, pas un routeur à base d'URL — pas de deep-link direct vers une page poussée, pas d'URL distincte par page. Si tu as besoin de ça, c'est un lot à part (mapper des URLs vers des pages), à discuter séparément.
-
-## Le shell (thème, layout, onglets)
-
-Le pendant de `MaterialApp(theme: ThemeData(colorScheme: ColorScheme.fromSeed(...)))` + `Scaffold(appBar:, body:, bottomNavigationBar:)` + `IndexedStack` : construit sur [MUI](https://mui.com/) (donc compatible avec tous ses composants), mais avec un vocabulaire Flutter plutôt que l'API MUI brute.
+## Le point d'entrée
 
 ```tsx
-import {
-  AppBar,
-  BottomNavigationBar,
-  defineComponent,
-  IndexedStack,
-  Scaffold,
-  ThemeProvider,
-} from "@colinsavenue/alula";
-import HomeIcon from "@mui/icons-material/Home";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+// lib/main.tsx
+import { ChangeNotifierProvider, MaterialApp, runApp, ThemeMode } from "@colinsavenue/alula";
+import { CartModel } from "./CartModel";
 
-const theme = {
-  colorScheme: {
-    primary: "#1B5E20",
-    onPrimary: "#FFFFFF",
-    secondary: "#FFD700",
-    onSecondary: "#000000",
-  },
-  bottomNavigationBarTheme: {
-    selectedItemColor: "#1B5E20",
-    unselectedItemColor: "#9E9E9E",
-    selectedLabelBold: true,
-  },
-};
-
-interface NavPageState {
-  currentIndex: number;
-}
-
-const NavPage = defineComponent<Record<string, never>, NavPageState>({
-  name: "NavPage",
-  initialState: () => ({ currentIndex: 0 }),
-  build: (ctx) => (
-    <Scaffold
-      appBar={<AppBar title="Accueil" centerTitle />}
-      body={
-        <IndexedStack index={ctx.state.currentIndex}>
-          <HomePage />
-          <CalendarPage />
-        </IndexedStack>
-      }
-      bottomNavigationBar={
-        <BottomNavigationBar
-          currentIndex={ctx.state.currentIndex}
-          onTap={(index) => ctx.setState({ currentIndex: index })}
-          items={[
-            { icon: <HomeIcon />, label: "Accueil" },
-            { icon: <CalendarMonthIcon />, label: "Calendrier" },
-          ]}
-        />
-      }
-    />
-  ),
-});
-
-export const App = () => (
-  <ThemeProvider theme={theme}>
-    <NavPage />
-  </ThemeProvider>
+export default runApp(
+  <MaterialApp
+    title="Mon app"
+    theme={{ colorScheme: { primary: "#4f46e5" } }}
+    darkTheme={{ colorScheme: { primary: "#a5b4fc" } }}
+    themeMode={ThemeMode.system}
+    providers={[ChangeNotifierProvider({ create: () => new CartModel() })]}
+  />
 );
 ```
 
-Voir [`examples/nav-shell-demo.tsx`](./examples/nav-shell-demo.tsx) pour la traduction complète d'une vraie app Flutter à onglets (thème, `AppBar`, `IndexedStack`, `BottomNavigationBar`).
+Pas de liste de pages : la CLI trouve toute seule les classes exportées de `lib/` qui déclarent `static route`.
 
-| API | rôle | équivalent Flutter |
-|---|---|---|
-| `<ThemeProvider theme={...} />` | thème global (couleurs, styles des composants) | `MaterialApp(theme: ThemeData(...))` |
-| `theme.colorScheme` | couleurs nommées par rôle (`primary`/`onPrimary`/...) | `ColorScheme.fromSeed(...)` |
-| `theme.appBarTheme` / `bottomNavigationBarTheme` / `elevatedButtonTheme` | styles par type de composant | `AppBarTheme` / `BottomNavigationBarThemeData` / `ElevatedButtonThemeData` |
-| `<Scaffold appBar={} body={} bottomNavigationBar={} />` | structure de page standard | `Scaffold(appBar:, body:, bottomNavigationBar:)` |
-| `<AppBar title={} centerTitle actions={} />` | barre du haut | `AppBar(title:, centerTitle:, actions:)` |
-| `<IndexedStack index={} />` | garde tous les enfants montés, affiche un seul | `IndexedStack(index:, children:)` |
-| `<BottomNavigationBar currentIndex={} onTap={} items={} />` | barre d'onglets du bas | `BottomNavigationBar(currentIndex:, onTap:, items:)` |
+Autres props de `MaterialApp` : `locale` (défaut `"fr"`), `onUnknownRoute`, `siteUrl` (défaut `process.env.SITE_URL`), `sitemapPaths` (URLs de routes à paramètres à mettre dans le sitemap).
 
-`@mui/material`, `@mui/icons-material`, `@emotion/react` et `@emotion/styled` sont des **peer dependencies** : installe-les dans ton app (`npm install @mui/material @emotion/react @emotion/styled @mui/icons-material`), la lib ne les embarque pas dans son build.
+## Widgets
 
-### Câblage Next.js (App Router)
-
-Une "page" `alula` est un composant normal — le point de branchement avec le App Router de Next.js, c'est `app/layout.tsx` (thème) et `app/page.tsx` (la page elle-même) :
+### StatelessWidget
 
 ```tsx
-// app/layout.tsx
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
-import { ThemeProvider } from "@colinsavenue/alula";
-import { theme } from "./theme";
+import { StatelessWidget, Text, Card, Padding, EdgeInsets } from "@colinsavenue/alula";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="fr">
-      <body>
-        <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>{children}</ThemeProvider>
-        </AppRouterCacheProvider>
-      </body>
-    </html>
-  );
+export class GreetingCard extends StatelessWidget<{ name: string }> {
+  build() {
+    return Card({
+      child: Padding({ padding: EdgeInsets.all(16), child: Text(`Bonjour ${this.props.name}`) }),
+    });
+  }
+}
+
+// Utilisation dans un autre build() :
+GreetingCard.new({ name: "Bob" });
+```
+
+### StatefulWidget
+
+L'état est porté par des champs de la classe ; `setState` reconstruit le widget.
+
+```tsx
+import { StatefulWidget, Row, IconButton, Icon, Icons, Text } from "@colinsavenue/alula";
+
+export class Counter extends StatefulWidget<{}, { initialValue?: number }> {
+  private count = 0;
+
+  initState() {
+    this.count = this.props.initialValue ?? 0;
+  }
+
+  build() {
+    return Row({
+      spacing: 16,
+      children: [
+        IconButton({ icon: Icon(Icons.remove), onPressed: () => this.setState(() => { this.count--; }) }),
+        Text(this.count),
+        IconButton({ icon: Icon(Icons.add), onPressed: () => this.setState(() => { this.count++; }) }),
+      ],
+    });
+  }
+
+  dispose() {
+    // nettoyage facultatif (timers, abonnements…)
+  }
 }
 ```
 
-```tsx
-// app/page.tsx
-import { NavPage } from "./NavPage";
+| méthode | rôle |
+|---|---|
+| `initState()` | une fois, à la création (les props sont déjà disponibles) |
+| `build()` | à chaque rendu ; on peut y appeler des hooks (`useNavigator()`, `Theme.of()`…) |
+| `setState(() => { … })` ou `setState({ … })` | modifie l'état et reconstruit |
+| `dispose()` | au démontage |
+| `this.props` | toujours à jour, comme `widget` en Flutter |
 
-export default function Page() {
-  return <NavPage />;
+### Catalogue
+
+Tous exportés depuis `@colinsavenue/alula`, avec la même API qu'en Flutter (props nommées) :
+
+- **Mise en page** : `Container`, `SizedBox`, `Padding`, `Center`, `Align`, `Row`, `Column`, `Expanded`, `Flexible`, `Spacer`, `Wrap`, `Stack`, `Positioned`, `ClipRRect`
+- **Base** : `Text`, `Icon` + `Icons`, `Divider`, `Image`
+- **Structure** : `Scaffold`, `AppBar`, `Card`, `ListTile`
+- **Listes** : `ListView`, `GridView`
+- **Saisie / boutons** : `ElevatedButton`, `TextButton`, `OutlinedButton`, `IconButton`, `FloatingActionButton`, `TextField`, `DropdownButton`, `Checkbox`, `Switch`, `Radio`, `Slider`
+- **Progression** : `CircularProgressIndicator`, `LinearProgressIndicator`
+- **Navigation** : `TabBar`, `BottomNavigationBar`, `NavigationRail`, `IndexedStack`, `TabScaffold`, `NavLink`
+- **Pop-up** : `showDialog`, `AlertDialog`, `SimpleDialog`, `showSnackBar`, `showModalBottomSheet`
+- **Animations** : `AnimatedContainer`, `AnimatedOpacity`, `AnimatedSwitcher`, `AnimatedCrossFade`, `TweenAnimationBuilder`… et `Curves`
+- **Responsive** : `MediaQuery`, `ResponsiveLayout`
+- **Async** : `FutureBuilder`
+- **Peinture** : `EdgeInsets`, `BorderRadius`, `BoxDecoration`, `LinearGradient`, `Alignment`, `TextStyle`, `FontWeight`…
+
+Seules les icônes écrites `Icons.xxx` dans `lib/` sont embarquées dans le site.
+
+## Pages et navigation
+
+Une page est un widget qui déclare sa route. Les paramètres de l'URL deviennent ses props.
+
+```tsx
+export class GreetingPage extends StatelessWidget<{ name: string }> {
+  static route = "/greeting/:name";
+  static metadata = ({ name }: { name: string }) => ({ title: `Bonjour ${name}` });
+
+  build() {
+    const nav = useNavigator();
+    return Scaffold({
+      appBar: AppBar({ title: Text(`Bonjour ${this.props.name}`) }),
+      body: TextButton({ onPressed: nav.canPop ? nav.pop : null, child: "← Retour" }),
+    });
+  }
 }
 ```
 
-`app/page.tsx` ne contient jamais de markup — juste le rendu d'un widget défini avec `defineComponent`, écrit dans son propre fichier comme `HomePage`/`DetailPage` dans les exemples ci-dessus. `AppRouterCacheProvider` (fourni par `@mui/material-nextjs`) est nécessaire pour que le CSS-in-JS d'Emotion s'hydrate correctement en SSR streaming — sans lui, le style "flashe" au premier rendu client.
+La route doit être une chaîne écrite en dur : la CLI la lit dans le source sans l'exécuter.
 
-**Limite actuelle, héritée de `NavigatorProvider`** : `IndexedStack` (onglets) et le `NavigatorProvider` (pile push/pop) restent tous les deux 100% client — aucun des deux n'a d'URL propre. Pour une page qui doit être accessible par une URL directe et server-render au refresh, utilise une vraie route Next.js (`app/calendrier/page.tsx`) plutôt que `push()`/`IndexedStack`. Le routeur à base d'URL (mapper des `push()` à de vraies routes) reste un lot à part, cf. roadmap.
+`useNavigator()` renvoie l'équivalent de `Navigator.of(context)` :
 
-## Développement
+| API | rôle |
+|---|---|
+| `nav.pushNamed(GreetingPage, { name: "Bob" })` ou `nav.pushNamed("/greeting/:name", { name: "Bob" })` | ouvre une page avec sa propre URL (paramètres typés) |
+| `nav.push(DetailPage, { id: 42 })` ou `nav.push(<Detail />)` | empile une page sans changer l'URL |
+| `nav.replace(<Page />)` | remplace la page courante |
+| `nav.pop()` | revient en arrière (relié au bouton retour du navigateur) |
+| `nav.canPop` / `nav.depth` | état de la pile |
+| `nav.prefetch(path)` | précharge le code (et éventuellement les données) d'une page |
+
+`<NavLink to="/blog">` crée un vrai lien, préchargé à l'affichage et au survol.
+
+Les pages de la pile restent montées tant qu'on ne fait pas `pop()` : leur état (formulaire, scroll…) survit à un aller-retour.
+
+### Données chargées sur le serveur
+
+```tsx
+async function load({ slug }: { slug: string }) {
+  return db.article.find(slug); // null ou undefined → 404
+}
+
+export class ArticlePage extends StatelessWidget<{ slug: string; data: Loaded<typeof load> }> {
+  static route = "/blog/:slug";
+  static load = load;
+  static metadata = (_: { slug: string }, article: Loaded<typeof load>) => ({ title: article.title });
+
+  build() {
+    return Text(this.props.data.title);
+  }
+}
+```
+
+`static load` tourne toujours sur le serveur (base de données, secrets) : au premier rendu, puis via une Server Action lors des navigations côté client. Le résultat doit être sérialisable en JSON. Pour des données propres à l'utilisateur ou chargées dans le navigateur, utilise `FutureBuilder`.
+
+## État partagé
+
+Comme `ChangeNotifier` + le package `provider` :
+
+```ts
+export class CartModel extends ChangeNotifier {
+  items: Product[] = [];
+  add(product: Product) {
+    this.items.push(product);
+    this.notifyListeners();
+  }
+}
+```
+
+Fourni dans `MaterialApp({ providers })` (ou localement avec `ChangeNotifierProvider({ create, child })`), puis lu dans `build()` :
+
+| API | rôle |
+|---|---|
+| `Provider.watch(CartModel)` | l'objet ; reconstruit à chaque `notifyListeners()` |
+| `Provider.read(CartModel)` | l'objet, sans écouter (pour les callbacks) |
+| `Provider.select(CartModel, (c) => c.items.length)` | reconstruit seulement si la valeur change |
+
+Aussi disponibles : `ValueNotifier`, `ListenableBuilder`, `ValueListenableBuilder`, `MultiProvider`.
+
+## Thème
+
+`theme` / `darkTheme` de `MaterialApp` prennent un `colorScheme`, une police et les styles par composant (`appBarTheme`, `bottomNavigationBarTheme`, `elevatedButtonTheme`…). Dans un `build()` :
+
+```ts
+const theme = Theme.of();
+Text("Titre", { style: { ...theme.textTheme.titleLarge, color: theme.colorScheme.primary } });
+```
+
+`useThemeMode()` et `ThemeModeButton()` permettent de passer en clair, en sombre ou de suivre le système.
+
+## Web et mobile
+
+- **Web** : `alula dev | build | start` génère un projet Next.js (App Router) dans `.alula/`, puis lance `next`. Chaque page a son propre chunk chargé à la demande, ses métadonnées, et elle apparaît dans `sitemap.xml` / `robots.txt`. `public/` et les `.env*` de la racine sont pris en compte.
+- **Mobile** : `alula dev --native` génère une app Expo dans `.alula-native/` et lance `expo start` (QR code pour Expo Go, ou `i` / `a` pour un simulateur). Les mêmes pages sont rendues par les fichiers `.native.tsx` de la lib (React Native). Le build mobile n'existe pas encore.
+
+Ces deux dossiers sont générés : il ne faut pas les modifier ni les committer.
+
+### `alula.config.mjs`
+
+```js
+export default {
+  entry: "lib/main.tsx",   // point d'entrée (défaut)
+  next: { /* config Next additionnelle */ },
+  revalidate: false,       // durée de cache des pages en secondes, false = jusqu'au prochain build
+  native: { name: "Mon app", slug: "mon-app", scheme: "mon-app" },
+};
+```
+
+## Dépendances
+
+React, Next, MUI et Emotion sont des **peer dependencies** (et Expo, React Native, React Native Paper, React Navigation pour le mobile, en optionnel). `alula create` les ajoute au projet dans les bonnes versions.
+
+## Développer la lib
 
 ```bash
 npm install
-npm run test        # vitest, une fois
-npm run test:watch  # vitest en watch
+npm run dev          # app de démo (src/examples) sur le web
+npm run dev:native   # app de démo sur mobile
+npm run test         # vitest
 npm run typecheck
-npm run build        # génère dist/ (esm + cjs + .d.ts) via tsup
+npm run build        # dist/ (esm + cjs + .d.ts) via tsup
 ```
 
-## Fait
+L'app de démo (`src/examples/lib`) montre tous les widgets ; son `alula.config.mjs` utilise `library: ".."` pour importer la lib depuis le source plutôt que depuis le paquet publié.
 
-- **Core** — `defineComponent` (contrat explicite, état encapsulé et fusionné, cycle de vie nommé).
-- **Navigation** — `NavigatorProvider` / `useNavigator` (pile de pages en mémoire, état préservé, sync bouton retour).
-- **Shell** — `ThemeProvider`, `Scaffold`, `AppBar`, `IndexedStack`, `BottomNavigationBar` (au-dessus de MUI, vocabulaire Flutter).
+## Roadmap
 
-## Roadmap (pas encore commencés)
-
-- **State management partagé** — façon Riverpod/Provider, pour partager de l'état entre composants sans prop-drilling.
-- **Plugin ESLint** — pour faire respecter le contrat (ex: interdire les hooks bruts à l'intérieur de `build`, forcer `name` unique, etc.).
-- **Compat Next.js Server Components** — un `build` qui reste utilisable côté serveur quand le composant n'a pas d'état.
-- **Routeur à base d'URL** (si besoin) — mapper des URLs à des pages / deep-linking, par-dessus ou à la place de `NavigatorProvider`.
+- Build de l'app mobile (EAS).
+- Plugin ESLint pour faire respecter les conventions des widgets.
