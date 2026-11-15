@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Alula</title>
+  <rect width="256" height="256" rx="56" fill="#0F172A"/>
+  <defs>
+    <path id="plume" d="M0 0 C 40 -22, 110 -20, 150 0 C 110 18, 40 20, 0 0 Z"/>
+  </defs>
+  <g transform="translate(70 190)">
+    <use href="#plume" transform="rotate(-62) scale(0.78)" fill="#14B8A6"/>
+    <use href="#plume" transform="rotate(-42) scale(0.92)" fill="#2DD4BF"/>
+    <use href="#plume" transform="rotate(-20) scale(1)" fill="#5EEAD4"/>
+  </g>
+  <circle cx="70" cy="190" r="9" fill="#F59E0B"/>
+</svg>

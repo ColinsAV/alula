@@ -28,10 +28,12 @@ import {
   ThemeModeButton,
   useNavigator,
   Wrap,
+  Image
 } from "../../index";
 import { Counter } from "./features/state/Counter";
 import { CodeBlock } from "./shell/CodeBlock";
 import { SECTIONS } from "./shell/sections";
+import alulaLogo from "./alula.svg";
 
 const FLUTTER_CODE = `class Counter extends StatefulWidget {
   @override
@@ -107,6 +109,7 @@ export class HomePage extends StatelessWidget {
       child: Column({
         spacing: 20,
         children: [
+          Image.asset(alulaLogo, { width: 100, height: 100, semanticLabel: "Logo alula" }),
           Text("La syntaxe Flutter, le SEO de Next.js", {
             style: { ...theme.textTheme.displaySmall, fontWeight: 700 },
             textAlign: TextAlign.center,
@@ -233,7 +236,13 @@ export class HomePage extends StatelessWidget {
     return Scaffold({
       appBar: AppBar({
         automaticallyImplyLeading: false,
-        title: Text("alula", { style: { fontWeight: 700 } }),
+        title: Row({
+          spacing: 6,
+          children:[
+            Image.asset(alulaLogo, { width: 32, height: 32, semanticLabel: "Logo alula" }),
+            Text("alula", { style: { fontWeight: 700 } }),
+          ]
+        }),
         actions: [
           <NavLink to="/layout" style={{ ...plainLink, marginRight: 8 }}>
             Catalogue

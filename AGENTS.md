@@ -120,6 +120,7 @@ Tous importés depuis `@colinsavenue/alula` :
 - Responsive : `MediaQuery`, `ResponsiveLayout`
 - Async : `FutureBuilder`, `ConnectionState`
 - Fichiers : `FilePicker.platform.pickFiles({ type, allowedExtensions, allowMultiple })`, `FileType` (voir ci-dessous)
+- Excel et CSV : `Excel.decodeBytes(bytes)`, `CsvToListConverter().convert(texte)` (voir ci-dessous)
 - Valeurs : `EdgeInsets`, `BorderRadius`, `Border`, `BoxDecoration`, `LinearGradient`, `RadialGradient`, `Alignment`, `MainAxisAlignment`, `CrossAxisAlignment`, `TextStyle`, `FontWeight`, `BoxFit`
 
 Si un widget Flutter manque, compose-le à partir de ceux-ci plutôt que d'écrire du HTML/CSS ou du React Native directement.
@@ -139,9 +140,38 @@ if (result) {
 - `null` si l'utilisateur annule, ou si aucun fichier choisi n'a une extension autorisée.
 - Sur mobile, il faut `expo-document-picker` dans les dépendances du projet (`npx expo install expo-document-picker`).
 
+## Lire un classeur Excel ou un CSV
+
+Comme les paquets Flutter `excel` et `csv`. Lecture seule, sur le web et sur mobile :
+
+```ts
+const result = await FilePicker.platform.pickFiles({ type: FileType.custom, allowedExtensions: ["xlsx", "csv"] });
+const file = result?.files[0];
+if (file) {
+  const bytes = await file.readAsBytes();
+  if (file.extension === "csv") {
+    const rows = CsvToListConverter().convert(new TextDecoder().decode(bytes)); // string[][]
+  } else {
+    const excel = Excel.decodeBytes(bytes);          // lève une Error si ce n'est pas un .xlsx / .xlsm
+    for (const sheet of excel.sheets) {              // dans l'ordre, avec sheet.visibility
+      sheet.rows;                                    // CellValue[][] : string | number | null
+    }
+    excel.tables["PRESTATIONS"]?.cell(0, 0);         // ligne, colonne en base 0
+  }
+}
+```
+
+- Les dates Excel arrivent en nombres (jours depuis le 30/12/1899) : `Excel.dateFromSerial(n)` donne une `Date` UTC.
+- `sheet.hyperlinks` : liens hypertextes, clé `"ligne:colonne"`. `Excel.decodeBytes(bytes, { maxColumns: 20 })` ignore les colonnes au-delà.
+- Le format binaire `.xls` n'est pas lu : demander un `.xlsx`.
+- `CsvToListConverter` devine le séparateur (`;`, tabulation, `,`) ; `{ fieldDelimiter: ";" }` pour l'imposer.
+
 ## Images
 
 `import hero from "./hero.jpg"` puis `Image.asset(hero)` (optimisée par `next/image`). Pour une URL distante : `Image.network(url, { width })`.
+
+- Une chaîne (`Image.asset("logo.png")`) est un chemin dans `public/`, pas à côté du fichier : pour une image de `lib/`, importe-la.
+- `.svg` : s'importe pareil (`import logo from "./logo.svg"`), affiché tel quel, sans optimisation. Web uniquement : React Native n'affiche pas les SVG.
 
 ## À éviter
 

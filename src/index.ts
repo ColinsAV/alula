@@ -6,6 +6,9 @@ export { StatefulWidgetComponent, useStatefulWidget } from "./core/StatefulWidge
 // Widgets prêts à l'emploi (Container, Row, Column, Text, ListView, ElevatedButton…)
 export * from "./core/widgets";
 
+// Lecture de fichiers Excel et CSV (Excel.decodeBytes, CsvToListConverter)
+export * from "./core/excel";
+
 // État partagé (ChangeNotifier, Provider…)
 export * from "./core/state/changeNotifier";
 export { Provider } from "./core/state/provider";

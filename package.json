@@ -141,5 +141,8 @@
     "react-native-screens": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "fflate": "^0.8.2"
   }
 }

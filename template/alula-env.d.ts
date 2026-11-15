@@ -8,3 +8,4 @@ declare module "*.jpeg" { const image: AlulaStaticImage; export default image; }
 declare module "*.gif" { const image: AlulaStaticImage; export default image; }
 declare module "*.webp" { const image: AlulaStaticImage; export default image; }
 declare module "*.avif" { const image: AlulaStaticImage; export default image; }
+declare module "*.svg" { const image: AlulaStaticImage; export default image; }
