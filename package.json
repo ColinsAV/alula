@@ -34,6 +34,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
+    "build:site": "cd src/examples && node ../next/cli.mjs build",
     "dev": "cd src/examples && node ../next/cli.mjs dev",
     "build:watch": "tsup --watch",
     "test": "vitest run",
