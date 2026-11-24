@@ -22,4 +22,5 @@ export const SECTIONS: Section[] = [
   { route: "/data", label: "Données", description: "FutureBuilder et static load.", icon: Icons.cloud_download },
   { route: "/blog", label: "Blog", description: "Un mini-blog chargé côté serveur.", icon: Icons.article },
   { route: "/theme", label: "Thème", description: "Theme.of, mode sombre, MediaQuery.", icon: Icons.palette },
+  { route: "/mobile", label: "Mobile", description: "Le même code en React Native, avec Expo.", icon: Icons.phone_iphone },
 ];

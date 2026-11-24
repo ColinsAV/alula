@@ -73,6 +73,7 @@ const ALULA_CODE = `class Counter extends StatefulWidget {
 
 const FEATURES: { icon: IconData; title: string; text: string }[] = [
   { icon: Icons.view_quilt, title: "Widgets façon Flutter", text: "Row, Column, Container, Scaffold, Material : le même vocabulaire, en TypeScript." },
+  { icon: Icons.phone_iphone, title: "Web et mobile", text: "Le même code donne un site Next.js et une app iOS / Android (React Native, Expo)." },
   { icon: Icons.search, title: "SEO", text: "Rendu serveur, métadonnées par page, sitemap, robots.txt et vraies 404." },
   { icon: Icons.cloud_download, title: "Données serveur", text: "static load : le contenu arrive dans le HTML, Google le voit." },
   { icon: Icons.alt_route, title: "Navigation", text: "Une pile de pages comme Navigator, synchronisée avec l'URL." },
@@ -125,6 +126,7 @@ export class HomePage extends StatelessWidget {
             children: [
               ElevatedButton({ onPressed: () => nav.pushNamed("/layout"), child: "Explorer les widgets" }),
               OutlinedButton({ onPressed: () => nav.pushNamed("/blog"), child: "Voir le blog" }),
+              OutlinedButton({ onPressed: () => nav.pushNamed("/mobile"), child: "Et sur mobile" }),
             ],
           }),
         ],
