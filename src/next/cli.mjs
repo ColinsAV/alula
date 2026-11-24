@@ -328,6 +328,9 @@ export default {
   // Racine du projet : sans elle, Next la devine d'après les lockfiles trouvés
   // plus haut (un package-lock.json oublié dans le dossier personnel…).
   outputFileTracingRoot: ${JSON.stringify(tracingRoot())},
+  // Build dans \`.next/\` à la racine du projet, pas dans \`.alula/.next/\` : c'est là
+  // que Vercel (et les autres hébergeurs Next) le cherchent.
+  distDir: "../.next",
   ...next,
   // Le code de l'app (lib/) est hors de .alula/.
   experimental: { ...next.experimental, externalDir: true },

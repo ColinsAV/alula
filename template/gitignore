@@ -6,6 +6,9 @@ node_modules/
 .alula-native/
 .expo/
 
+# Build Next
+.next/
+
 # Secrets
 .env
 .env*.local
